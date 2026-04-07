@@ -1,5 +1,6 @@
 import React from 'react';
 import {Button} from "@/components/ui/button"
+import Link from "next/link";
 
 function Home() {
     return (
@@ -9,7 +10,14 @@ function Home() {
                 What will you cook today?
             </h1>
 
-            <Button variant="destructive">Button</Button>
+            <div className="flex gap-1">
+                <Link href={'/fridge'} className="flex-1">
+                    <Button variant="default" size="xl" className="w-full">Fridge</Button>
+                </Link>
+                <Link href={'/recipes'} className="flex-1">
+                    <Button variant="outline" size="xl" className="w-full">Recipes</Button>
+                </Link>
+            </div>
 
         </div>
     );

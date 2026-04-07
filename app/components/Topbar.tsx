@@ -33,28 +33,28 @@ function Topbar() {
                     <li>
                         <a href="/"
                            onClick={() => setMenuOpen(false)}
-                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors text-sm tracking-wide">Home</a>
+                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Home</a>
                     </li>
                     <li>
                         <Link href="/fridge"
                               onClick={() => setMenuOpen(false)}
-                              className="block px-6 py-3 text-gray-500 hover:text-black transition-colors text-sm tracking-wide">Fridge</Link>
+                              className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Fridge</Link>
                     </li>
                     <li>
-                        <a href="/"
+                        <Link href="/recipes"
                            onClick={() => setMenuOpen(false)}
-                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors text-sm tracking-wide">Recipes</a>
+                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Recipes</Link>
                     </li>
                     <li>
-                        <a href="/"
+                        <Link href="/"
                            onClick={() => setMenuOpen(false)}
-                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors text-sm tracking-wide">Shopping
-                            list</a>
+                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Shopping
+                            list</Link>
                     </li>
                     <li>
-                        <a href="/"
+                        <Link href="/"
                            onClick={() => setMenuOpen(false)}
-                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors text-sm tracking-wide">Profile</a>
+                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Profile</Link>
                     </li>
                 </ul>
             </div>

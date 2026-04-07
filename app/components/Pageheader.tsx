@@ -11,7 +11,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title }) => {
 
     return (
         <div>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="-mt-8 mb-6">
                 <div className="flex items-center h-14 gap-4">
 
                     <button
