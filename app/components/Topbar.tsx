@@ -46,7 +46,7 @@ function Topbar() {
                            className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Recipes</Link>
                     </li>
                     <li>
-                        <Link href="/"
+                        <Link href="/shoppingList"
                            onClick={() => setMenuOpen(false)}
                            className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Shopping
                             list</Link>

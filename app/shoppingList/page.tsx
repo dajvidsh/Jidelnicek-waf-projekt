@@ -1,19 +1,12 @@
 "use client"
-import {useEffect, useState} from "react";
-import {db} from "@/lib/firebase";
-import {addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query} from "firebase/firestore";
+
 import PageHeader from "@/app/components/Pageheader";
 import InputField from "@/app/components/InputField";
+import {addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query} from "firebase/firestore";
+import {db} from "@/lib/firebase";
+import {useEffect, useState} from "react";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Button} from "@/components/ui/button";
-
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
-} from "@/components/ui/table";
 
 interface FoodItem {
     id: string;
@@ -23,10 +16,11 @@ interface FoodItem {
 }
 
 export default function Page() {
+
     const [foods, setFoods] = useState<FoodItem[]>([]);
 
     useEffect(() => {
-        const q = query(collection(db, "fridge"), orderBy("createdAt", "desc"));
+        const q = query(collection(db, "shoppingList"), orderBy("createdAt", "desc"));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const allItems = snapshot.docs.map(doc => ({
@@ -44,7 +38,7 @@ export default function Page() {
         if (!itemName.trim()) return;
 
         try {
-            await addDoc(collection(db, "fridge"), {
+            await addDoc(collection(db, "shoppingList"), {
                 name: itemName,
                 amount: amount,
                 unit: "ks",
@@ -56,25 +50,42 @@ export default function Page() {
     };
 
     const handleDelete = async (id: string) => {
-        await deleteDoc(doc(db, "fridge", id));
+        await deleteDoc(doc(db, "shoppingList", id));
+    };
+
+    const handleCheck = async (food: FoodItem) => {
+        try {
+            await addDoc(collection(db, "fridge"), {
+                name: food.name,
+                amount: food.amount,
+                unit: food.unit,
+                createdAt: new Date()
+            });
+
+            await deleteDoc(doc(db, "shoppingList", food.id));
+        } catch (e) {
+            console.error("Error adding to fridge", e);
+        }
     };
 
     return (
         <div>
-            <PageHeader title={"My Fridge"}/>
+            <PageHeader title={"Shopping list"}/>
 
-            <InputField label={"Add to fridge..."} onAdd={(name, amount) => handleAdd(name, amount)}></InputField>
+            <InputField label={"Add to shopping list..."} onAdd={(name, amount) => handleAdd(name, amount)}/>
 
             <Table>
                 <TableHeader className="bg-slate-50/50">
                     <TableRow className="hover:bg-transparent border-b">
+                        <TableHead className="h-12 px-6 font-semibold text-slate-900">
+
+                        </TableHead>
                         <TableHead className="h-12 px-6 font-semibold text-slate-900">
                             Name
                         </TableHead>
                         <TableHead className="h-12 px-6 text-right font-semibold text-slate-900">
                             Amount
                         </TableHead>
-                        {/*<TableHead>Unit</TableHead>*/}
                     </TableRow>
                 </TableHeader>
 
@@ -85,6 +96,9 @@ export default function Page() {
                                 key={food.id}
                                 className="group transition-colors hover:bg-slate-50/80 border-b last:border-0"
                             >
+                                <TableCell>
+                                    <Button variant="ghost" onClick={() => handleCheck(food)}><span>✅</span></Button>
+                                </TableCell>
                                 <TableCell className="px-6 py-4">
                                     {food.name}
                                 </TableCell>
@@ -92,7 +106,6 @@ export default function Page() {
                                     className="px-6 py-4 text-right font-mono text-sm text-slate-500 tabular-nums">
                                     {food.amount}{food.unit}
                                 </TableCell>
-                                {/*<TableCell>{food.unit}</TableCell>*/}
                                 <TableCell>
                                     <Button variant="ghost" onClick={() => handleDelete(food.id)}><span
                                         className={"text-red-700"}>X</span></Button>
@@ -101,19 +114,13 @@ export default function Page() {
                         ))) : (
                         <TableRow>
                             <TableCell colSpan={4} className="text-center py-10 text-gray-500">
-                                Fridge is empty
+                                Shopping list is empty
                             </TableCell>
                         </TableRow>
                     )}
                 </TableBody>
             </Table>
 
-            <br/>
-            <br/>
-
-            <Button variant={'default'} className="w-full h-14.5 items-center flex justify-start p-4 font-bold">Find
-                recipes {'->'}</Button>
-
         </div>
-    );
+    )
 }
