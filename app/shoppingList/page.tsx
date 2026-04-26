@@ -7,6 +7,8 @@ import {db} from "@/lib/firebase";
 import {useEffect, useState} from "react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Button} from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+
 
 interface FoodItem {
     id: string;
@@ -97,7 +99,7 @@ export default function Page() {
                                 className="group transition-colors hover:bg-slate-50/80 border-b last:border-0"
                             >
                                 <TableCell>
-                                    <Button variant="ghost" onClick={() => handleCheck(food)}><span>✅</span></Button>
+                                    <Button variant="ghost" onClick={() => handleCheck(food)}><span><Checkbox /></span></Button>
                                 </TableCell>
                                 <TableCell className="px-6 py-4">
                                     {food.name}
