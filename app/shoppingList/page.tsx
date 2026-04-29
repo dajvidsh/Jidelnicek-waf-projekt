@@ -17,65 +17,83 @@ interface FoodItem {
     unit: string;
 }
 
+const API_KEY = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
+
 export default function Page() {
 
     const [foods, setFoods] = useState<FoodItem[]>([]);
+    const [itemName, setItemName] = useState("");
+    const [suggestions, setSuggestions] = useState<{ id: number; name: string; image: string }[]>([]);
 
+    // Firebase listener
     useEffect(() => {
         const q = query(collection(db, "shoppingList"), orderBy("createdAt", "desc"));
-
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const allItems = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...(doc.data() as Omit<FoodItem, 'id'>)
-            })) as FoodItem[];
-
-            setFoods(allItems);
-        });
-
-        return () => unsubscribe();
+        return onSnapshot(q, (snapshot) =>
+            setFoods(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as FoodItem)))
+        );
     }, []);
 
-    const handleAdd = async (itemName: string, amount: number) => {
-        if (!itemName.trim()) return;
+    // Spoonacular autocomplete
+    useEffect(() => {
+        if (itemName.trim().length <= 2) return setSuggestions([]);
 
-        try {
-            await addDoc(collection(db, "shoppingList"), {
-                name: itemName,
-                amount: amount,
-                unit: "ks",
-                createdAt: new Date()
-            });
-        } catch (e) {
-            console.error("Error adding ", e);
-        }
+        const timer = setTimeout(async () => {
+            try {
+                const res = await fetch(`https://api.spoonacular.com/food/ingredients/autocomplete?query=${itemName}&number=5&apiKey=${API_KEY}`);
+                const data = await res.json();
+                if (Array.isArray(data)) setSuggestions(data);
+            } catch (e) {
+                console.error("Spoonacular error:", e);
+            }
+        }, 400);
+
+        return () => clearTimeout(timer);
+    }, [itemName]);
+
+    const handleAdd = async (name: string, amount: number) => {
+        if (!name.trim()) return;
+        const normalized = name.charAt(0).toUpperCase() + name.slice(1);
+        await addDoc(collection(db, "shoppingList"), { name: normalized, amount, unit: "ks", createdAt: new Date() });
+        setItemName("");
+        setSuggestions([]);
     };
 
     const handleDelete = async (id: string) => {
         await deleteDoc(doc(db, "shoppingList", id));
     };
 
-    const handleCheck = async (food: FoodItem) => {
-        try {
-            await addDoc(collection(db, "fridge"), {
-                name: food.name,
-                amount: food.amount,
-                unit: food.unit,
-                createdAt: new Date()
-            });
-
-            await deleteDoc(doc(db, "shoppingList", food.id));
-        } catch (e) {
-            console.error("Error adding to fridge", e);
-        }
+    const handleCheck = async ({ id, name, amount, unit }: FoodItem) => {
+        await addDoc(collection(db, "fridge"), { name, amount, unit, createdAt: new Date() });
+        await deleteDoc(doc(db, "shoppingList", id));
     };
 
     return (
         <div>
             <PageHeader title={"Shopping list"}/>
 
-            <InputField label={"Add to shopping list..."} onAdd={(name, amount) => handleAdd(name, amount)}/>
+            <div className="relative mb-6">
+                <InputField
+                    label="Add to shopping list..."
+                    value={itemName}
+                    onChange={setItemName}
+                    onAdd={(name, amount) => handleAdd(name, amount)}
+                />
 
+                {suggestions.length > 0 && (
+                    <div className="absolute z-50 w-full top-11.25 bg-white border rounded-md shadow-xl overflow-hidden">
+                        {suggestions.map((s) => (
+                            <div
+                                key={s.id}
+                                className="px-4 py-3 hover:bg-slate-100 cursor-pointer flex items-center justify-between border-b last:border-0"
+                                onClick={() => { setItemName(s.name); setSuggestions([]); }}
+                            >
+                                <span className="capitalize text-sm font-medium text-slate-700">{s.name}</span>
+                                <img src={`https://spoonacular.com/cdn/ingredients_100x100/${s.image}`} className="w-8 h-8 object-contain bg-slate-50 rounded p-1" alt={s.name} />
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
             <Table>
                 <TableHeader className="bg-slate-50/50">
                     <TableRow className="hover:bg-transparent border-b">
@@ -99,7 +117,12 @@ export default function Page() {
                                 className="group transition-colors hover:bg-slate-50/80 border-b last:border-0"
                             >
                                 <TableCell>
-                                    <Button variant="ghost" onClick={() => handleCheck(food)}><span><Checkbox /></span></Button>
+                                    <div
+                                        className="cursor-pointer p-2"
+                                        onClick={() => handleCheck(food)}
+                                    >
+                                        <Checkbox />
+                                    </div>
                                 </TableCell>
                                 <TableCell className="px-6 py-4">
                                     {food.name}
