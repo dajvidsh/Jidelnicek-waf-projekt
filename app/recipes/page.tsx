@@ -68,7 +68,7 @@ export default function Page() {
                         <Button
                             variant="default"
                             size="xl"
-                            className="w-full bg-[#636191] hover:bg-[#52507a] rounded-[30px] flex justify-between items-center px-8 transition-colors"
+                            className="w-full flex justify-between items-center px-8 transition-colors"
                         >
                             In fridge
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -79,9 +79,9 @@ export default function Page() {
                     </Link>
                     <Link href="/shoppingList" className="flex-1">
                         <Button
-                            variant="default"
+                            variant="outline"
                             size="xl"
-                            className="w-full bg-[#636191] hover:bg-[#52507a] rounded-[30px] flex justify-between items-center px-8 transition-colors"
+                            className="w-full flex justify-between items-center px-8 transition-colors"
                         >
                             Shopping list
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -104,9 +104,9 @@ export default function Page() {
                             recipes.map((recipe) => (
                                 <div
                                     key={recipe.id}
-                                    className="group cursor-pointer border border-slate-100 rounded-[24px] overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all bg-white"
+                                    className="group cursor-pointer border border-slate-100 rounded-lg overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all bg-white"
                                 >
-                                    <div className="aspect-[4/3] w-full overflow-hidden">
+                                    <div className="aspect-4/3 w-full overflow-hidden">
                                         <img
                                             src={recipe.img}
                                             alt={recipe.title}

@@ -14,6 +14,7 @@ import {
     TableHeader,
     TableRow
 } from "@/components/ui/table";
+import Link from "next/link";
 
 interface FoodItem {
     id: string;
@@ -110,9 +111,9 @@ export default function Page() {
 
             <br/>
             <br/>
-
+            <Link href="/recipes" className="flex-1">
             <Button variant={'default'} className="w-full h-14.5 items-center flex justify-start p-4 font-bold">Find
-                recipes {'->'}</Button>
+                recipes {'->'}</Button></Link>
 
         </div>
     );
