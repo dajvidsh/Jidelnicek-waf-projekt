@@ -1,14 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import Link from "next/link";
 import PageHeader from "@/app/components/Pageheader";
-import { Button } from "@/components/ui/button";
+import {Button} from "@/components/ui/button";
 
 // Firebase importy
-import { db } from "@/lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import {db} from "@/lib/firebase";
+import {collection, getDocs} from "firebase/firestore";
 
 export default function Page() {
     const [recipes, setRecipes] = useState([]);
@@ -58,10 +58,10 @@ export default function Page() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-white pb-10 px-6">
+        <div>
+            <PageHeader title={"Recipes"}/>
             <div className="max-w-7xl mx-auto">
                 {/* Nadpis a horní navigace - Zůstávají zachovány */}
-                <PageHeader title={"Recipes"} />
 
                 <div className="flex justify-center gap-4 mb-10 w-full max-w-4xl mx-auto">
                     <Link href="/fridge" className="flex-1">
@@ -71,8 +71,9 @@ export default function Page() {
                             className="w-full bg-[#636191] hover:bg-[#52507a] rounded-[30px] flex justify-between items-center px-8 transition-colors"
                         >
                             In fridge
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
                             </svg>
                         </Button>
                     </Link>
@@ -83,8 +84,9 @@ export default function Page() {
                             className="w-full bg-[#636191] hover:bg-[#52507a] rounded-[30px] flex justify-between items-center px-8 transition-colors"
                         >
                             Shopping list
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
                             </svg>
                         </Button>
                     </Link>
@@ -114,7 +116,8 @@ export default function Page() {
 
                                     <div className="p-4">
                                         <div className="flex justify-between items-center mb-1">
-                                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Recipes</span>
+                                            <span
+                                                className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Recipes</span>
                                             <div className="flex items-center gap-1">
                                                 <span className="text-xs font-bold text-slate-700">5.0</span>
                                                 <span className="text-yellow-400 text-xs">★</span>
@@ -127,7 +130,8 @@ export default function Page() {
                                 </div>
                             ))
                         ) : (
-                            <div className="col-span-full text-center py-10 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                            <div
+                                className="col-span-full text-center py-10 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
                                 <p className="text-slate-500">V lednici nemáte žádné suroviny pro vyhledání receptů.</p>
                             </div>
                         )}
