@@ -1,22 +1,68 @@
+"use client";
+
 import * as React from "react";
-import Link from "next/link"; // Tento import je klíčový!
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import PageHeader from "@/app/components/Pageheader";
 import { Button } from "@/components/ui/button";
 
+// Firebase importy
+import { db } from "@/lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
+
 export default function Page() {
-    const recipes = [
-        { id: 1, title: "Classic Spaghetti Carbonara", img: "https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&q=80&w=400" },
-        { id: 2, title: "Avocado Toast with Egg", img: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&q=80&w=400" },
-        { id: 3, title: "Spicy Thai Green Curry", img: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?auto=format&fit=crop&q=80&w=400" },
-        { id: 4, title: "Berry Smoothie Bowl", img: "https://images.unsplash.com/photo-1494597564530-897b7a21157c?auto=format&fit=crop&q=80&w=400" },
-        { id: 5, title: "Vegetable Stir Fry", img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=400" },
-        { id: 6, title: "Pancakes with Syrup", img: "https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&q=80&w=400" },
-    ];
+    const [recipes, setRecipes] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchIngredientsAndRecipes = async () => {
+            try {
+                setLoading(true);
+
+                // 1. Načtení surovin z Firebase (kolekce 'fridge')
+                const querySnapshot = await getDocs(collection(db, "fridge"));
+                const ingredientsList = querySnapshot.docs.map(doc => doc.data().name);
+
+                if (ingredientsList.length === 0) {
+                    setRecipes([]);
+                    return;
+                }
+
+                // 2. Volání Spoonacular API s klíčem z .env.local
+                const ingredientsString = ingredientsList.join(",");
+                const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
+
+                const response = await fetch(
+                    `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${encodeURIComponent(ingredientsString)}&number=12&ranking=2&apiKey=${apiKey}`
+                );
+
+                const data = await response.json();
+
+                // 3. Formátování výsledků
+                if (Array.isArray(data)) {
+                    const formattedRecipes = data.map((r: any) => ({
+                        id: r.id,
+                        title: r.title,
+                        img: r.image
+                    }));
+                    setRecipes(formattedRecipes);
+                }
+            } catch (error) {
+                console.error("Chyba při načítání:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchIngredientsAndRecipes();
+    }, []);
 
     return (
         <div className="min-h-screen bg-white pb-10 px-6">
             <div className="max-w-7xl mx-auto">
+                {/* Nadpis a horní navigace - Zůstávají zachovány */}
                 <PageHeader title={"Recipes"} />
+
                 <div className="flex justify-center gap-4 mb-10 w-full max-w-4xl mx-auto">
                     <Link href="/fridge" className="flex-1">
                         <Button
@@ -30,7 +76,7 @@ export default function Page() {
                             </svg>
                         </Button>
                     </Link>
-                    <Link href="/shopping-list" className="flex-1">
+                    <Link href="/shoppingList" className="flex-1">
                         <Button
                             variant="default"
                             size="xl"
@@ -42,37 +88,51 @@ export default function Page() {
                             </svg>
                         </Button>
                     </Link>
-
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {recipes.map((recipe) => (
-                        <div
-                            key={recipe.id}
-                            className="group cursor-pointer border border-slate-100 rounded-[24px] overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all bg-white"
-                        >
-                            <div className="aspect-[4/3] w-full overflow-hidden">
-                                <img
-                                    src={recipe.img}
-                                    alt={recipe.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                            </div>
 
-                            <div className="p-4">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Recipes</span>
-                                    <div className="flex items-center gap-1">
-                                        <span className="text-xs font-bold text-slate-700">5.0</span>
-                                        <span className="text-yellow-400 text-xs">★</span>
+                {/* Zobrazení receptů nebo Loading stavu */}
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#636191] mb-4"></div>
+                        <p className="text-slate-500 font-medium">Hledám recepty podle vaší lednice...</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {recipes.length > 0 ? (
+                            recipes.map((recipe) => (
+                                <div
+                                    key={recipe.id}
+                                    className="group cursor-pointer border border-slate-100 rounded-[24px] overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all bg-white"
+                                >
+                                    <div className="aspect-[4/3] w-full overflow-hidden">
+                                        <img
+                                            src={recipe.img}
+                                            alt={recipe.title}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                    </div>
+
+                                    <div className="p-4">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Recipes</span>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-xs font-bold text-slate-700">5.0</span>
+                                                <span className="text-yellow-400 text-xs">★</span>
+                                            </div>
+                                        </div>
+                                        <h3 className="text-[#4A4870] font-bold text-sm md:text-base leading-tight">
+                                            {recipe.title}
+                                        </h3>
                                     </div>
                                 </div>
-                                <h3 className="text-[#4A4870] font-bold text-sm md:text-base leading-tight">
-                                    {recipe.title}
-                                </h3>
+                            ))
+                        ) : (
+                            <div className="col-span-full text-center py-10 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                                <p className="text-slate-500">V lednici nemáte žádné suroviny pro vyhledání receptů.</p>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
