@@ -7,19 +7,27 @@ import {useState} from "react";
 
 interface InputFieldProps {
     label: string;
-    value: string;
-    onChange: (val: string) => void;
+    value?: string;
+    onChange?: (val: string) => void;
     onAdd: (name: string, amount: number) => void;
 }
 
 const InputField = ({onAdd, label, value, onChange}: InputFieldProps) => {
 
     const [amount, setAmount] = useState(1);
+    const [internalValue, setInternalValue] = useState("");
+
+    const currentText = value !== undefined ? value : internalValue;
+
+    const handleTextChange = (val: string) => {
+        setInternalValue(val);
+        onChange?.(val);
+    };
 
     const handleInternalSubmit = () => {
-        if (!value.trim()) return;
-        onAdd(value, amount);
-        onChange("");
+        if (!currentText.trim()) return;
+        onAdd(currentText, amount);
+        handleTextChange("");
         setAmount(1);
     };
 
@@ -36,8 +44,8 @@ const InputField = ({onAdd, label, value, onChange}: InputFieldProps) => {
                 type="text"
                 placeholder={label}
                 className="flex-1 text-sm h-10"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
+                value={currentText}
+                onChange={(e) => handleTextChange(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleInternalSubmit()}
             />
             <Button className="h-10" onClick={handleInternalSubmit}>Add</Button>

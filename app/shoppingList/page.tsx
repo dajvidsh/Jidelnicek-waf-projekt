@@ -81,9 +81,9 @@ export default function Page() {
 
                 {suggestions.length > 0 && (
                     <div className="absolute z-50 w-full top-11.25 bg-white border rounded-md shadow-xl overflow-hidden">
-                        {suggestions.map((s) => (
+                        {suggestions.map((s, index) => (
                             <div
-                                key={s.id}
+                                key={`${s.id}-${index}`}
                                 className="px-4 py-3 hover:bg-slate-100 cursor-pointer flex items-center justify-between border-b last:border-0"
                                 onClick={() => { setItemName(s.name); setSuggestions([]); }}
                             >
