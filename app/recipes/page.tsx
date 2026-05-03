@@ -102,7 +102,8 @@ export default function Page() {
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {recipes.length > 0 ? (
                             recipes.map((recipe) => (
-                                <div
+                                <Link
+                                    href={`/recipes/${recipe.id}`}
                                     key={recipe.id}
                                     className="group cursor-pointer border border-slate-100 rounded-lg overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all bg-white"
                                 >
@@ -127,7 +128,7 @@ export default function Page() {
                                             {recipe.title}
                                         </h3>
                                     </div>
-                                </div>
+                                </Link>
                             ))
                         ) : (
                             <div
