@@ -83,8 +83,6 @@ export default function Page() {
 
                     <div className="text-slate-700 text-sm md:text-base leading-relaxed space-y-4">
                         {recipeDetail.instructions }
-                            {/*// ? recipeDetail.instructions.replace(/<[^>]*>?/gm, '')*/}
-                            {/*// : "Instrukce pro tento recept bohužel nejsou k dispozici."}*/}
                     </div>
                 </div>
 
