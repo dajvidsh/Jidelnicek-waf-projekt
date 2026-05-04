@@ -39,7 +39,15 @@ export default function Page() {
                 const fridgeRef = collection(db, "fridge");
                 const q = query(fridgeRef);
                 const fridgeSnap = await getDocs(q);
-                setFridgeCount(fridgeSnap.size);
+
+                let totalAmount = 0;
+                fridgeSnap.forEach((doc) => {
+                    const data = doc.data();
+                    totalAmount += Number(data.amount) || 0;
+                });
+
+                setFridgeCount(totalAmount);
+                // setFridgeCount(fridgeSnap.size); tohle je pocet rozdilnych itemu, zalezi co chcem(ignoruje ks)
             } catch (err){
                 console.error("Error while fetching data:", err);
             } finally {
