@@ -59,7 +59,7 @@ function Topbar() {
                             list</Link>
                     </li>
                     <li>
-                        <Link href="/"
+                        <Link href="/profile"
                            onClick={() => setMenuOpen(false)}
                            className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Profile</Link>
                     </li>
