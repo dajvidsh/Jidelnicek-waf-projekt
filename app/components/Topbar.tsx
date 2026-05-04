@@ -1,9 +1,16 @@
 "use client";
 import React, {useState} from 'react';
 import Link from "next/link";
+import {usePathname} from "next/navigation";
 
 function Topbar() {
     const [menuOpen, setMenuOpen] = useState(false);
+
+    const pathname = usePathname();
+
+    if (pathname === '/login' || pathname === '/register' || pathname === '/') {
+        return null;
+    }
 
     return (
         <nav className="bg-white border-b border-gray-100 relative">
@@ -11,7 +18,7 @@ function Topbar() {
 
                 <div className="flex justify-between h-16 items-center">
                     <div className="flex items-center shrink-0">
-                        <span className="font-bold text-2xl"><Link href={'/'}>Jidelnicek</Link></span>
+                        <span className="font-bold text-2xl"><Link href={'/home'}>Jidelnicek</Link></span>
                     </div>
 
                     <div className="flex items-center sm:hidden">
@@ -31,7 +38,7 @@ function Topbar() {
                 className={`fixed top-16 left-0 h-[calc(100vh-64px)] w-[70%] bg-white border-r border-gray-100 z-40 transform transition-transform duration-300 ease-in-out sm:hidden ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <ul className="py-4">
                     <li>
-                        <Link href="/"
+                        <Link href="/home"
                            onClick={() => setMenuOpen(false)}
                            className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Home</Link>
                     </li>
