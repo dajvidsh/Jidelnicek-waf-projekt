@@ -50,8 +50,8 @@ export default function Page(){
                 <h1 className="text-2xl font-bold">Create account</h1>
 
                 <Input type="email" placeholder="Email" value={email} required onChange={(e) => setEmail(e.target.value)} />
-                <Input type="password" placeholder="Password" value={password} minLength={5} required onChange={(e) => setPassword(e.target.value)} />
-                <Input type="password" placeholder="Confirm password" value={passwordConfirm} minLength={5} required onChange={(e) => setPasswordConfirm(e.target.value)} />
+                <Input type="password" placeholder="Password" value={password} minLength={6} required onChange={(e) => setPassword(e.target.value)} />
+                <Input type="password" placeholder="Confirm password" value={passwordConfirm} minLength={6} required onChange={(e) => setPasswordConfirm(e.target.value)} />
 
                 {error && <p className="text-red-500 text-sm">{error}</p>}
 
