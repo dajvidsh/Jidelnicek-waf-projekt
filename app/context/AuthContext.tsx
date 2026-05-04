@@ -17,13 +17,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const pathname = usePathname();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-            setUser(firebaseUser);
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setUser(user);
             setLoading(false);
 
             const publicPages = ["/login", "/register"];
 
-            if (!firebaseUser && !publicPages.includes(pathname)) {
+            if (!user && !publicPages.includes(pathname)) {
                 router.push("/login");
             }
         });

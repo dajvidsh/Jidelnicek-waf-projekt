@@ -11,6 +11,7 @@ import { ArrowRight } from "lucide-react";
 import * as React from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import Link from "next/link";
 
 interface UserData{
     name: string;
@@ -105,12 +106,13 @@ export default function Page() {
                     {fridgeCount}
                 </span>
                 </div>
-
-                <Button
-                    className="bg-[#636191] hover:bg-[#4A4870] text-white px-10 py-6 rounded-full text-lg flex items-center gap-2 transition-all w-full max-w-xs"
-                >
-                    Edit profile <ArrowRight className="h-5 w-5" />
-                </Button>
+                <Link href={"/profile/edit"} className="w-full max-w-xs">
+                    <Button
+                        className="bg-[#636191] hover:bg-[#4A4870] text-white px-10 py-6 rounded-full text-lg flex items-center gap-2 transition-all w-full max-w-xs"
+                    >
+                        Edit profile <ArrowRight className="h-5 w-5" />
+                    </Button>
+                </Link>
             </div>
         </div>
     )
