@@ -12,9 +12,10 @@ import {collection, getDocs} from "firebase/firestore";
 import {useAuth} from "@/app/context/AuthContext";
 
 export default function Page() {
+    const { user } = useAuth();
+
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { user } = useAuth();
 
     useEffect(() => {
         const fetchIngredientsAndRecipes = async () => {

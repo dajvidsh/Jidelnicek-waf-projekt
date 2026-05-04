@@ -9,6 +9,8 @@ import { doc, getDoc, collection, query, getDocs } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import * as React from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 interface UserData{
     name: string;
@@ -47,12 +49,20 @@ export default function Page() {
         fetchUserData().catch(console.error)
     }, [user]);
 
-    if (!user) return null;
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error("Error while logout:", error);
+        }
+    };
+
     if (loading) return <div className="flex justify-center mt-10">Loading profile...</div>;
+    if (!user) return null;
 
     return (
         <div>
-            <PageHeader title={"Profile"} />
+            <PageHeader title={"Profile"} onLogout={handleLogout} />
 
             <div className="flex flex-col items-center justify-center min-h-[80vh] text-center space-y-8">
 

@@ -5,7 +5,10 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter, usePathname } from "next/navigation";
 
-const AuthContext = createContext<{ user: User | null }>({ user: null });
+const AuthContext = createContext<{ user: User | null; loading: boolean }>({
+    user: null,
+    loading: true
+});
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -14,13 +17,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const pathname = usePathname();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setUser(user);
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+            setUser(firebaseUser);
             setLoading(false);
 
             const publicPages = ["/login", "/register"];
 
-            if (!user && !publicPages.includes(pathname)) {
+            if (!firebaseUser && !publicPages.includes(pathname)) {
                 router.push("/login");
             }
         });
@@ -29,8 +32,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, [pathname, router]);
 
     return (
-        <AuthContext.Provider value={{ user }}>
-            {!loading && children}
+        <AuthContext.Provider value={{ user, loading }}>
+            {children}
         </AuthContext.Provider>
     );
 };
