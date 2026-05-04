@@ -9,10 +9,12 @@ import {Button} from "@/components/ui/button";
 // Firebase importy
 import {db} from "@/lib/firebase";
 import {collection, getDocs} from "firebase/firestore";
+import {useAuth} from "@/app/context/AuthContext";
 
 export default function Page() {
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchIngredientsAndRecipes = async () => {
@@ -56,6 +58,8 @@ export default function Page() {
 
         fetchIngredientsAndRecipes();
     }, []);
+
+    if (!user) return null;
 
     return (
         <div>

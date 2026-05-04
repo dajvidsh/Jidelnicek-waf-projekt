@@ -8,6 +8,7 @@ import {useEffect, useState} from "react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Button} from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {useAuth} from "@/app/context/AuthContext";
 
 
 interface FoodItem {
@@ -21,6 +22,7 @@ const API_KEY = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
 
 export default function Page() {
 
+    const { user } = useAuth()
     const [foods, setFoods] = useState<FoodItem[]>([]);
     const [itemName, setItemName] = useState("");
     const [suggestions, setSuggestions] = useState<{ id: number; name: string; image: string }[]>([]);
@@ -67,6 +69,7 @@ export default function Page() {
         await deleteDoc(doc(db, "shoppingList", id));
     };
 
+    if (!user) return null;
     return (
         <div>
             <PageHeader title={"Shopping list"}/>

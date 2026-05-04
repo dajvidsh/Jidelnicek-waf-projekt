@@ -1,8 +1,13 @@
 "use client";
 
 
-export default function Page() {
+import {useAuth} from "@/app/context/AuthContext";
 
+export default function Page() {
+    const { user } = useAuth();
+
+
+    if (!user) return null;
 
     return (
         <div>

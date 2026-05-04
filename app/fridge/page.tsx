@@ -5,6 +5,8 @@ import {addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query} from "fi
 import PageHeader from "@/app/components/Pageheader";
 import InputField from "@/app/components/InputField";
 import {Button} from "@/components/ui/button";
+import { useAuth } from "@/app/context/AuthContext";
+
 
 import {
     Table,
@@ -24,6 +26,8 @@ interface FoodItem {
 }
 
 export default function Page() {
+
+    const { user } = useAuth();
     const [foods, setFoods] = useState<FoodItem[]>([]);
 
     useEffect(() => {
@@ -59,6 +63,7 @@ export default function Page() {
     const handleDelete = async (id: string) => {
         await deleteDoc(doc(db, "fridge", id));
     };
+    if (!user) return null;
 
     return (
         <div>

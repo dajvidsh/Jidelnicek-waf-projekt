@@ -1,8 +1,16 @@
+"use client";
+
 import React from 'react';
 import {Button} from "@/components/ui/button"
 import Link from "next/link";
+import { useAuth } from "@/app/context/AuthContext";
 
 function Home() {
+
+    const { user } = useAuth();
+
+    if (!user) return null;
+
     return (
         <div className="max-w-4xl mx-auto p-6 mt-8">
 

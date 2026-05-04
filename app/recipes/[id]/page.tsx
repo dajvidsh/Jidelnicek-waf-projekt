@@ -5,6 +5,7 @@ import PageHeader from "@/app/components/Pageheader";
 import { useEffect, useState } from "react";
 import * as React from "react";
 import {Checkbox} from "@/components/ui/checkbox";
+import {useAuth} from "@/app/context/AuthContext";
 
 interface RecipeDetailInfo {
     id: number;
@@ -21,6 +22,7 @@ export default function Page() {
 
     const params = useParams();
     const id = params.id;
+    const { user } = useAuth();
 
     const [recipeDetail, setRecipeDetail] = useState<RecipeDetailInfo | null>(null);
 
@@ -51,6 +53,7 @@ export default function Page() {
         );
     }
 
+    if (!user) return null;
 
     return (
         <div className="bg-white min-h-screen pb-10">
