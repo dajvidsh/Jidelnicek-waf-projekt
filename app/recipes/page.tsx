@@ -11,10 +11,16 @@ import {db} from "@/lib/firebase";
 import {collection, getDocs} from "firebase/firestore";
 import {useAuth} from "@/app/context/AuthContext";
 
+interface Recipe {
+    id: number;
+    title: string;
+    img: string;
+}
+
 export default function Page() {
     const { user } = useAuth();
 
-    const [recipes, setRecipes] = useState([]);
+    const [recipes, setRecipes] = useState<Recipe[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
