@@ -2,6 +2,9 @@
 import React, {useState} from 'react';
 import Link from "next/link";
 import {usePathname} from "next/navigation";
+import {signOut} from "firebase/auth";
+import {auth} from "@/lib/firebase";
+import { LogOut } from "lucide-react";
 
 function Topbar() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -11,6 +14,14 @@ function Topbar() {
     if (pathname === '/login' || pathname === '/register' || pathname === '/') {
         return null;
     }
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error("Error while logout:", error);
+        }
+    };
 
     return (
         <nav className="bg-white border-b border-gray-100 relative">
@@ -62,6 +73,15 @@ function Topbar() {
                         <Link href="/profile"
                            onClick={() => setMenuOpen(false)}
                            className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Profile</Link>
+                    </li>
+                    <li>
+                        <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-3 px-6 py-3 text-gray-500 hover:text-red-600 transition-colors tracking-wide"
+                        >
+                            <LogOut className="h-5 w-5" />
+                            <span>Log out</span>
+                        </button>
                     </li>
                 </ul>
             </div>

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth, googleProvider, db } from "@/lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
+import {Eye, EyeOff} from "lucide-react";
 
 
 export default function Page(){
@@ -16,6 +17,7 @@ export default function Page(){
     const [password, setPassword] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     const router = useRouter();
 
@@ -75,11 +77,34 @@ export default function Page(){
                 <h1 className="text-2xl font-bold">Login</h1>
 
                 <Input type="email" placeholder="Email" value={email} required onChange={(e) => setEmail(e.target.value)} />
-                <Input type="password" placeholder="Password" value={password} required onChange={(e) => setPassword(e.target.value)} />
+                {/*<Input type="password" placeholder="Password" value={password} required onChange={(e) => setPassword(e.target.value)} />*/}
+
+                <div className="relative w-full">
+                    <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        value={password}
+                        minLength={6}
+                        required
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pr-10"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#4A4870]"
+                    >
+                        {showPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                        ) : (
+                            <Eye className="h-5 w-5" />
+                        )}
+                    </button>
+                </div>
 
                 {error && <p className="text-red-500 text-sm">{error}</p>}
 
-                <Button type="submit" disabled={loading} className="w-full bg-[#4A4870]">
+                <Button type="submit" disabled={loading} className="w-full rounded-lg p-5">
                     {loading ? "Loading..." : "Login"}
                 </Button>
 
@@ -88,7 +113,7 @@ export default function Page(){
                     variant="outline"
                     onClick={handleGoogleLogin}
                     disabled={loading}
-                    className="w-full border-[#4A4870] text-[#4A4870]"
+                    className="w-full rounded-lg p-5"
                 >
                     Sign in with Google
                 </Button>

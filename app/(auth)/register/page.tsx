@@ -2,15 +2,16 @@
 
 
 import {useState} from "react";
-import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { auth, googleProvider, db } from "@/lib/firebase";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import {createUserWithEmailAndPassword, signInWithPopup} from "firebase/auth";
+import {auth, googleProvider, db} from "@/lib/firebase";
+import {useRouter} from "next/navigation";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
 import Link from "next/link";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import {doc, setDoc, getDoc} from "firebase/firestore";
+import { Eye, EyeOff } from "lucide-react";
 
-export default function Page(){
+export default function Page() {
 
     const [name, setName] = useState("");
     const [surname, setSurname] = useState("");
@@ -19,6 +20,7 @@ export default function Page(){
     const [passwordConfirm, setPasswordConfirm] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
 
     const router = useRouter();
@@ -55,10 +57,10 @@ export default function Page(){
     const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (password !== passwordConfirm) {
-            setError("Passwords do not match");
-            return;
-        }
+        // if (password !== passwordConfirm) {
+        //     setError("Passwords do not match");
+        //     return;
+        // }
 
         setError("");
         setLoading(true);
@@ -69,7 +71,7 @@ export default function Page(){
 
             console.log("1.userCredential");
 
-            await setDoc(doc(db,"users",user.uid),{
+            await setDoc(doc(db, "users", user.uid), {
                 name: name,
                 surname: surname,
                 imageUrl: "",
@@ -102,15 +104,40 @@ export default function Page(){
             <form onSubmit={handleRegister} className="w-full max-w-sm space-y-4">
                 <h1 className="text-2xl font-bold">Create account</h1>
 
-                <Input type="text" placeholder="Name" value={name} required onChange={(e) => setName(e.target.value)} />
-                <Input type="text" placeholder="Surname" value={surname} required onChange={(e) => setSurname(e.target.value)} />
-                <Input type="email" placeholder="Email" value={email} required onChange={(e) => setEmail(e.target.value)} />
-                <Input type="password" placeholder="Password" value={password} minLength={6} required onChange={(e) => setPassword(e.target.value)} />
-                <Input type="password" placeholder="Confirm password" value={passwordConfirm} minLength={6} required onChange={(e) => setPasswordConfirm(e.target.value)} />
+                <div className={"flex justify-between gap-2"}>
+                    <Input type="text" placeholder="Name" value={name} required onChange={(e) => setName(e.target.value)}/>
+                    <Input type="text" placeholder="Surname" value={surname} required onChange={(e) => setSurname(e.target.value)}/>
+                </div>
+                <Input type="email" placeholder="Email" value={email} required onChange={(e) => setEmail(e.target.value)}/>
+                {/*<Input type="password" placeholder="Password" value={password} minLength={6} required onChange={(e) => setPassword(e.target.value)}/>*/}
+                {/*<Input type="password" placeholder="Confirm password" value={passwordConfirm} minLength={6} required onChange={(e) => setPasswordConfirm(e.target.value)} />*/}
+
+                <div className="relative w-full">
+                    <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        value={password}
+                        minLength={6}
+                        required
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pr-10"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#4A4870]"
+                    >
+                        {showPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                        ) : (
+                            <Eye className="h-5 w-5" />
+                        )}
+                    </button>
+                </div>
 
                 {error && <p className="text-red-500 text-sm">{error}</p>}
 
-                <Button type="submit" disabled={loading} className="w-full bg-[#4A4870]">
+                <Button type="submit" disabled={loading} className="w-full p-5 rounded-lg">
                     {loading ? "Loading..." : "Register"}
                 </Button>
 
@@ -119,7 +146,7 @@ export default function Page(){
                     variant="outline"
                     onClick={handleGoogleRegister}
                     disabled={loading}
-                    className="w-full border-[#4A4870] text-[#4A4870]"
+                    className="w-full p-5 rounded-lg"
                 >
                     Register with Google
                 </Button>
