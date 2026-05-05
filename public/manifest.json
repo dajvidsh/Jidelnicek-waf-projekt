@@ -1,0 +1,21 @@
+{
+  "name": "Jídelníček App",
+  "short_name": "Jídelníček",
+  "description": "Moje chytrá lednice a nákupní seznam",
+  "start_url": "/home",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4A4870",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
