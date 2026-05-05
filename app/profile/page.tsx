@@ -83,14 +83,14 @@ export default function Page() {
                             className="h-32 w-32 rounded-full border-4 border-white shadow-lg object-cover"
                         />
                     ) : (
-                        <div className="h-32 w-32 rounded-full border-4 border-white shadow-lg bg-[#4A4870] flex items-center justify-center text-white text-3xl font-bold">
+                        <div className="h-32 w-32 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-white text-3xl font-bold">
                             {userData?.name[0]}{userData?.surname[0]}
                         </div>
                     )}
                 </div>
 
                 <div className="space-y-1">
-                    <h1 className="text-4xl font-bold text-[#4A4870]">
+                    <h1 className="text-4xl font-bold">
                         {userData?.name} {userData?.surname}
                     </h1>
                     <p className="text-gray-500 text-lg">
@@ -99,16 +99,16 @@ export default function Page() {
                 </div>
 
                 <div className="py-8">
-                    <h2 className="text-2xl font-semibold text-[#4A4870] mb-2">
+                    <h2 className="text-2xl font-semibold mb-2">
                         Number of items <br /> in fridge
                     </h2>
-                    <span className="text-6xl font-bold text-[#4A4870]">
+                    <span className="text-6xl font-bold">
                     {fridgeCount}
                 </span>
                 </div>
                 <Link href={"/profile/edit"} className="w-full max-w-xs">
                     <Button
-                        className="bg-[#636191] hover:bg-[#4A4870] text-white px-10 py-6 rounded-full text-lg flex items-center gap-2 transition-all w-full max-w-xs"
+                        className="px-10 py-6 rounded-lg text-lg flex items-center gap-2 transition-all w-full max-w-xs"
                     >
                         Edit profile <ArrowRight className="h-5 w-5" />
                     </Button>

@@ -99,7 +99,7 @@ export default function Page() {
                         type="submit"
                         disabled={saving}
                         size="xl"
-                        className="w-full bg-[#4A4870] hover:bg-[#636191] text-white rounded-full mt-4"
+                        className="w-full text-white rounded-lg mt-4"
                     >
                         {saving ? "Saving..." : "Save changes"}
                     </Button>

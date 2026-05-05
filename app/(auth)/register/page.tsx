@@ -2,14 +2,13 @@
 
 
 import {useState} from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { auth, googleProvider, db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { db } from "@/lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 export default function Page(){
 
@@ -23,6 +22,35 @@ export default function Page(){
 
 
     const router = useRouter();
+
+    const handleGoogleRegister = async () => {
+        setLoading(true);
+        setError("");
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+
+            const docRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) {
+                await setDoc(docRef, {
+                    name: user.displayName?.split(" ")[0] || "User",
+                    surname: user.displayName?.split(" ").slice(1).join(" ") || "",
+                    imageUrl: user.photoURL || "",
+                    email: user.email,
+                    createdAt: new Date()
+                });
+            }
+
+            router.push("/home");
+        } catch (err) {
+            setError("Google registration failed. Please try again.");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -50,7 +78,7 @@ export default function Page(){
             })
             console.log("2.setDoc");
 
-            router.push("/login");
+            router.push("/home");
 
             console.log("3.push login");
         } catch (err) {
@@ -84,6 +112,16 @@ export default function Page(){
 
                 <Button type="submit" disabled={loading} className="w-full bg-[#4A4870]">
                     {loading ? "Loading..." : "Register"}
+                </Button>
+
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleGoogleRegister}
+                    disabled={loading}
+                    className="w-full border-[#4A4870] text-[#4A4870]"
+                >
+                    Register with Google
                 </Button>
 
                 <p className="text-sm text-center">
