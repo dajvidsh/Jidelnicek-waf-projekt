@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type {Metadata, Viewport} from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Topbar from "@/app/components/Topbar";
@@ -22,12 +22,15 @@ export const metadata: Metadata = {
     title: "Jidelnicek",
     description: "Aplikace pro správu receptů a lednice",
     manifest: "/manifest.json",
-    themeColor: "#4A4870",
     appleWebApp: {
         capable: true,
         statusBarStyle: "default",
         title: "Jidelnicek",
     },
+};
+
+export const viewport: Viewport = {
+    themeColor: "#4A4870",
 };
 
 export default function RootLayout({
