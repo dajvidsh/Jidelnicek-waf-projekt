@@ -6,7 +6,6 @@ import Link from "next/link";
 import PageHeader from "@/app/components/Pageheader";
 import {Button} from "@/components/ui/button";
 
-// Firebase importy
 import {db} from "@/lib/firebase";
 import {collection, getDocs} from "firebase/firestore";
 import {useAuth} from "@/app/context/AuthContext";
@@ -15,6 +14,12 @@ interface Recipe {
     id: number;
     title: string;
     img: string;
+}
+
+interface SpoonacularRecipe {
+    id: number;
+    title: string;
+    image: string;
 }
 
 export default function Page() {
@@ -28,7 +33,6 @@ export default function Page() {
             try {
                 setLoading(true);
 
-                // 1. Načtení surovin z Firebase (kolekce 'fridge')
                 const querySnapshot = await getDocs(collection(db, "fridge"));
                 const ingredientsList = querySnapshot.docs.map(doc => doc.data().name);
 
@@ -37,7 +41,6 @@ export default function Page() {
                     return;
                 }
 
-                // 2. Volání Spoonacular API s klíčem z .env.local
                 const ingredientsString = ingredientsList.join(",");
                 const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
 
@@ -47,9 +50,8 @@ export default function Page() {
 
                 const data = await response.json();
 
-                // 3. Formátování výsledků
                 if (Array.isArray(data)) {
-                    const formattedRecipes = data.map((r: any) => ({
+                    const formattedRecipes = data.map((r: SpoonacularRecipe) => ({
                         id: r.id,
                         title: r.title,
                         img: r.image
@@ -72,7 +74,6 @@ export default function Page() {
         <div>
             <PageHeader title={"Recipes"}/>
             <div className="max-w-7xl mx-auto">
-                {/* Nadpis a horní navigace - Zůstávají zachovány */}
 
                 <div className="flex justify-center gap-4 mb-10 w-full max-w-4xl mx-auto">
                     <Link href="/fridge" className="flex-1">
@@ -103,7 +104,6 @@ export default function Page() {
                     </Link>
                 </div>
 
-                {/* Zobrazení receptů nebo Loading stavu */}
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#636191] mb-4"></div>
