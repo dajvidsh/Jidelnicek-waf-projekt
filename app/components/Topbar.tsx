@@ -75,6 +75,12 @@ function Topbar() {
                            className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Profile</Link>
                     </li>
                     <li>
+                        <Link href="/chat"
+                              onClick={() => setMenuOpen(false)}
+                              className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Chat</Link>
+
+                    </li>
+                    <li>
                         <button
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 px-6 py-3 text-gray-500 hover:text-red-600 transition-colors tracking-wide"

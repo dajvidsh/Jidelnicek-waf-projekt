@@ -9,7 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.75",
+    "@ai-sdk/react": "^3.0.186",
     "@tanstack/react-table": "^8.21.3",
+    "ai": "^6.0.184",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.12.0",
