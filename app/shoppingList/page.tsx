@@ -29,11 +29,23 @@ export default function Page() {
 
     // Firebase listener
     useEffect(() => {
-        const q = query(collection(db, "shoppingList"), orderBy("createdAt", "desc"));
-        return onSnapshot(q, (snapshot) =>
-            setFoods(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as FoodItem)))
+        if (!user) return;
+        const q = query(
+            collection(db, "shoppingList"),
+            orderBy("createdAt", "desc")
         );
-    }, []);
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+                setFoods(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as FoodItem)));
+            },
+            (error) => {
+                console.error("Chyba při stahování seznamu:", error);
+            }
+        );
+
+        return () => unsubscribe();
+
+    }, [user]);
 
     // Spoonacular autocomplete
     useEffect(() => {
