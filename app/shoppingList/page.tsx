@@ -2,7 +2,7 @@
 
 import PageHeader from "@/app/components/Pageheader";
 import InputField from "@/app/components/InputField";
-import {addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query} from "firebase/firestore";
+import {addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, where} from "firebase/firestore";
 import {db} from "@/lib/firebase";
 import {useEffect, useState} from "react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
@@ -32,6 +32,7 @@ export default function Page() {
         if (!user) return;
         const q = query(
             collection(db, "shoppingList"),
+            where("userId","==", user?.uid),
             orderBy("createdAt", "desc")
         );
 
@@ -67,9 +68,9 @@ export default function Page() {
     }, [itemName]);
 
     const handleAdd = async (name: string, amount: number) => {
-        if (!name.trim()) return;
+        if (!name.trim() || !user) return;
         const normalized = name.charAt(0).toUpperCase() + name.slice(1);
-        await addDoc(collection(db, "shoppingList"), { name: normalized, amount, unit: "ks", createdAt: new Date() });
+        await addDoc(collection(db, "shoppingList"), { name: normalized, amount, unit: "ks", createdAt: new Date(), userId: user?.uid });
         setItemName("");
         setSuggestions([]);
     };
@@ -79,7 +80,7 @@ export default function Page() {
     };
 
     const handleCheck = async ({ id, name, amount, unit }: FoodItem) => {
-        await addDoc(collection(db, "fridge"), { name, amount, unit, createdAt: new Date() });
+        await addDoc(collection(db, "fridge"), { name, amount, unit, createdAt: new Date(), userId: user?.uid });
         await deleteDoc(doc(db, "shoppingList", id));
     };
 
