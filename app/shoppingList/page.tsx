@@ -37,7 +37,10 @@ export default function Page() {
 
     // Spoonacular autocomplete
     useEffect(() => {
-        if (itemName.trim().length <= 2) return setSuggestions([]);
+        if (itemName.trim().length <= 2) {
+            // setSuggestions([]);
+            return
+        }
 
         const timer = setTimeout(async () => {
             try {
