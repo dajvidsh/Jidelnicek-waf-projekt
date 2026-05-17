@@ -50,7 +50,6 @@ export default function Page() {
     // Spoonacular autocomplete
     useEffect(() => {
         if (itemName.trim().length <= 2) {
-            // setSuggestions([]);
             return
         }
 
@@ -93,7 +92,12 @@ export default function Page() {
                 <InputField
                     label="Add to shopping list..."
                     value={itemName}
-                    onChange={setItemName}
+                    onChange={(val) => {
+                        setItemName(val);
+                        if (val.trim().length <= 2) {
+                            setSuggestions([]);
+                        }
+                    }}
                     onAdd={(name, amount) => handleAdd(name, amount)}
                 />
 
