@@ -1,8 +1,8 @@
 "use client";
 
-import { useParams} from "next/navigation";
+import {useParams} from "next/navigation";
 import PageHeader from "@/app/components/Pageheader";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import * as React from "react";
 import {Checkbox} from "@/components/ui/checkbox";
 import {useAuth} from "@/app/context/AuthContext";
@@ -22,7 +22,7 @@ export default function Page() {
 
     const params = useParams();
     const id = params.id;
-    const { user } = useAuth();
+    const {user} = useAuth();
 
     const [recipeDetail, setRecipeDetail] = useState<RecipeDetailInfo | null>(null);
 
@@ -31,18 +31,26 @@ export default function Page() {
 
         const fetchDetail = async () => {
             try {
+                const cachedDetail = sessionStorage.getItem(`recipeDetail_${id}`);
+                if (cachedDetail) {
+                    setRecipeDetail(JSON.parse(cachedDetail));
+                    return;
+                }
+
                 const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
                 const response = await fetch(
                     `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}`
                 )
                 const data = await response.json();
+
+                sessionStorage.setItem(`recipeDetail_${id}`, JSON.stringify(data));
                 setRecipeDetail(data);
-            }catch(err) {
-                console.log("Error loading data into recipe details",err);
+            } catch (err) {
+                console.log("Error loading data into recipe details", err);
             }
         }
         fetchDetail().catch(console.error);
-    },[id])
+    }, [id])
 
     if (!recipeDetail) {
         return (
@@ -58,7 +66,7 @@ export default function Page() {
     return (
         <div className="bg-white min-h-screen pb-10">
 
-            <PageHeader title={recipeDetail.title} />
+            <PageHeader title={recipeDetail.title}/>
 
             <div className="max-w-3xl mx-auto px-6">
 
@@ -73,8 +81,9 @@ export default function Page() {
                 <div className="mb-10 flex flex-col gap-4">
                     {recipeDetail.extendedIngredients?.map((ingredient, index) => (
                         <div key={`${ingredient.id}-${index}`}>
-                            <label className="flex items-center space-x-3 text-primary font-bold text-sm md:text-base cursor-pointer">
-                                <Checkbox className="border-primary text-primary w-5 h-5" />
+                            <label
+                                className="flex items-center space-x-3 text-primary font-bold text-sm md:text-base cursor-pointer">
+                                <Checkbox className="border-primary text-primary w-5 h-5"/>
                                 <span>{ingredient.original}</span>
                             </label>
                         </div>
@@ -85,7 +94,7 @@ export default function Page() {
                     <h3 className="text-primary font-bold text-lg mb-3">Instructions</h3>
 
                     <div className="text-slate-700 text-sm md:text-base leading-relaxed space-y-4">
-                        {recipeDetail.instructions }
+                        {recipeDetail.instructions}
                     </div>
                 </div>
 

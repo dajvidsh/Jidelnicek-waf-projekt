@@ -39,14 +39,26 @@ export const useRecipesFromFridge = () => {
                 );
 
                 const querySnapshot = await getDocs(fridgeQuery);
-                const ingredientsList = querySnapshot.docs.map(doc => doc.data().name);
+                const ingredientsList = querySnapshot.docs.map(doc => doc.data().name).sort();
 
                 if (ingredientsList.length === 0) {
                     setRecipes([]);
+                    localStorage.removeItem(`cachedRecipes_${user.uid}`);
                     return;
                 }
 
                 const ingredientsString = ingredientsList.join(",");
+
+                const cachedDataStr = localStorage.getItem(`cachedRecipes_${user.uid}`);
+                if (cachedDataStr) {
+                    const cachedData = JSON.parse(cachedDataStr);
+                    if (cachedData.ingredients === ingredientsString) {
+                        setRecipes(cachedData.recipes);
+                        setLoading(false);
+                        return;
+                    }
+                }
+
                 const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
 
                 const response = await fetch(
@@ -66,6 +78,11 @@ export const useRecipesFromFridge = () => {
                         img: r.image
                     }));
                     setRecipes(formattedRecipes);
+
+                    localStorage.setItem(`cachedRecipes_${user.uid}`, JSON.stringify({
+                        ingredients: ingredientsString,
+                        recipes: formattedRecipes
+                    }));
                 }
             } catch (err: any) {
                 console.error("Chyba při načítání:", err);

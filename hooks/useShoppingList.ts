@@ -18,7 +18,7 @@ export const useShoppingList = () => {
     const [foods, setFoods] = useState<FoodItem[]>([]);
     const [itemName, setItemName] = useState("");
     const [suggestions, setSuggestions] = useState<{ id: number; name: string; image: string }[]>([]);
-    const [loading, setLoading] = useState(true); // Přidaný stav pro indikaci stahování dat
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!user) return;
@@ -42,19 +42,37 @@ export const useShoppingList = () => {
     }, [user]);
 
     useEffect(() => {
-        if (itemName.trim().length <= 2) {
+        const queryText = itemName.trim().toLowerCase();
+
+        if (queryText.length <= 2) {
+            setSuggestions([]);
             return;
         }
 
         const timer = setTimeout(async () => {
+            const cacheKey = `autocomplete_${queryText}`;
+            const cachedData = sessionStorage.getItem(cacheKey);
+
+            if (cachedData) {
+                setSuggestions(JSON.parse(cachedData));
+                return;
+            }
+
             try {
-                const res = await fetch(`https://api.spoonacular.com/food/ingredients/autocomplete?query=${itemName}&number=5&apiKey=${API_KEY}`);
+                const res = await fetch(`https://api.spoonacular.com/food/ingredients/autocomplete?query=${queryText}&number=5&apiKey=${API_KEY}`);
+
+                if (!res.ok) throw new Error("Chyba při načítání autocomplete");
+
                 const data = await res.json();
-                if (Array.isArray(data)) setSuggestions(data);
+
+                if (Array.isArray(data)) {
+                    setSuggestions(data);
+                    sessionStorage.setItem(cacheKey, JSON.stringify(data));
+                }
             } catch (e) {
                 console.error("Spoonacular error:", e);
             }
-        }, 400);
+        }, 500);
 
         return () => clearTimeout(timer);
     }, [itemName]);

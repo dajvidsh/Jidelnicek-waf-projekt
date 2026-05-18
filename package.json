@@ -11,11 +11,13 @@
   "dependencies": {
     "@ai-sdk/google": "^3.0.75",
     "@ai-sdk/react": "^3.0.186",
+    "@google/genai": "^2.4.0",
     "@tanstack/react-table": "^8.21.3",
     "ai": "^6.0.184",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.12.0",
+    "groq-sdk": "^1.2.0",
     "lucide-react": "^1.7.0",
     "next": "16.2.3",
     "radix-ui": "^1.4.3",

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from "@/app/context/AuthContext";
+import {useState, useEffect, useCallback} from 'react';
+import {useAuth} from "@/app/context/AuthContext";
 
 export interface RandomRecipe {
     id: number;
@@ -9,14 +9,24 @@ export interface RandomRecipe {
 }
 
 export const useRandomRecipes = () => {
-    const { user } = useAuth();
+    const {user} = useAuth();
 
     const [recipes, setRecipes] = useState<RandomRecipe[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchRandomRecipes = async () => {
+    const fetchRandomRecipes = useCallback(async (forceReload = false) => {
         try {
             setLoading(true);
+
+            if (!forceReload) {
+                const cachedRandom = sessionStorage.getItem('cachedRandomRecipes');
+                if (cachedRandom) {
+                    setRecipes(JSON.parse(cachedRandom));
+                    setLoading(false);
+                    return;
+                }
+            }
+
             const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
 
             const res = await fetch(
@@ -26,18 +36,21 @@ export const useRandomRecipes = () => {
 
             if (data && data.recipes) {
                 setRecipes(data.recipes);
+                sessionStorage.setItem('cachedRandomRecipes', JSON.stringify(data.recipes));
             }
         } catch (error) {
             console.error("Chyba pri stahovani receptu:", error);
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         if (!user) return;
-        fetchRandomRecipes().catch(console.error);
-    }, [user]);
+        fetchRandomRecipes();
+    }, [user, fetchRandomRecipes]);
 
-    return { recipes, loading, fetchRandomRecipes };
+    const handleReload = () => fetchRandomRecipes(true);
+
+    return {recipes, loading, fetchRandomRecipes: handleReload};
 };
