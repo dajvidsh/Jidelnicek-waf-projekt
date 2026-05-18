@@ -1,42 +1,35 @@
-import { google } from '@ai-sdk/google';
-import { streamText } from 'ai';
+import Groq from "groq-sdk";
+import { NextResponse } from 'next/server';
 
-export const maxDuration = 30;
-
-interface MessagePart {
-    type: string;
-    text?: string;
-}
-
-interface IncomingMessage {
-    role: 'user' | 'assistant' | 'system';
-    content?: string;
-    parts?: MessagePart[];
-}
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export async function POST(req: Request) {
-    const { messages } = await req.json();
+    try {
+        const { message } = await req.json();
 
-    const formattedMessages = messages.map((m: IncomingMessage) => {
-        let textContent = m.content;
-        if (m.parts) {
-            textContent = m.parts.map((part: MessagePart) => part.text).join('');
-        }
+        const chatCompletion = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: "system",
+                    content: "Jsi profesionální český šéfkuchař a pomocník pro tvorbu receptů. Odpovídej vždy česky, stručně a jasně."
+                },
+                {
+                    role: "user",
+                    content: message
+                }
+            ],
+            model: "llama-3.1-8b-instant",
+        });
 
-        return {
-            role: m.role,
-            content: textContent || ''
-        };
-    });
+        const replyText = chatCompletion.choices[0]?.message?.content || "Nevím, co na to říct.";
 
-    const result = await streamText({
-        model: google('gemini-2.0-flash'),
-        system: `You are a professional chef and nutritional consultant. 
-Your job is to help users with cooking, come up with recipes and create menus. 
-Answer in a friendly, concise manner, in Czech and in a clear text format using bullet points.`,
+        return NextResponse.json({ reply: replyText });
 
-        messages: formattedMessages,
-    });
-
-    return result.toTextStreamResponse();
+    } catch (error) {
+        console.error('Chyba AI (Groq):', error);
+        return NextResponse.json(
+            { error: 'Nepodařilo se vygenerovat odpověď z Groq API.' },
+            { status: 500 }
+        );
+    }
 }

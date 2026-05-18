@@ -1,83 +1,98 @@
-"use client";
+'use client';
 
-import { useChat } from '@ai-sdk/react';
-import { useState } from 'react'; // Přidali jsme klasický React state
-import PageHeader from "@/app/components/Pageheader"; // Cestu si případně uprav
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+
+type Message = {
+    role: 'user' | 'ai';
+    content: string;
+};
 
 export default function ChatPage() {
-
-    const { messages, status, sendMessage } = useChat();
-
+    const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const isLoading = status === 'submitted' || status === 'streaming';
+    // Funkce, která se spustí po odeslání formuláře
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault(); // Zabrání znovunačtení stránky
+        if (!input.trim()) return;
 
-    const handleFormSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (input.trim() === '') return;
+        // 1. Přidáme uživatelskou zprávu do chatu
+        const newMessages = [...messages, { role: 'user', content: input } as Message];
+        setMessages(newMessages);
+        setInput(''); // Vymažeme textové pole
+        setIsLoading(true);
 
-        sendMessage({ text: input });
-        setInput('');
+        try {
+            // 2. Pošleme dotaz na naše API (route.ts)
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: input }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // 3. Přidáme odpověď AI do chatu
+                setMessages([...newMessages, { role: 'ai', content: data.reply }]);
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            alert("Chyba při komunikaci se serverem.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
-        <div>
-            <PageHeader title={"AI Kuchař"} />
+        <div className="max-w-2xl mx-auto p-4 flex flex-col h-screen font-sans">
+            <h1 className="text-2xl font-bold mb-4 text-center">Generátor Receptů 🍳</h1>
 
-            <div className="max-w-3xl mx-auto p-6 flex flex-col h-[75vh]">
+            {/* Výpis zpráv */}
+            <div className="flex-1 overflow-y-auto border border-gray-200 rounded-lg p-4 bg-gray-50 mb-4 space-y-4">
+                {messages.length === 0 && (
+                    <p className="text-gray-400 text-center mt-10">Zatím tu nic není. Napište, z čeho chcete vařit!</p>
+                )}
 
-                <div className="flex-1 overflow-y-auto mb-6 p-4 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col gap-4 shadow-inner">
-                    {messages.length === 0 && (
-                        <div className="text-center text-slate-500 mt-10">
-                            <span className="text-4xl mb-4 block">👨‍🍳</span>
-                            <p>Ahoj! Jsem tvůj AI kuchař. Zeptej se mě na jakýkoliv recept,<br/> nebo mi řekni, co máš v lednici!</p>
-                        </div>
-                    )}
-
-                    {messages.map(m => (
-                        <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[85%] rounded-2xl p-4 ${
-                                m.role === 'user'
-                                    ? 'bg-[#4A4870] text-white rounded-br-sm'
-                                    : 'bg-white border border-slate-200 shadow-sm rounded-bl-sm text-slate-800'
-                            }`}>
-                                <p className="whitespace-pre-wrap leading-relaxed">
-                                    {m.parts.map((part, index) => (
-                                        <span key={index}>{part.type === 'text' ? part.text : null}</span>
-                                    ))}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
-
-                    {isLoading && (
-                        <div className="flex justify-start">
-                            <div className="bg-white border border-slate-200 shadow-sm rounded-2xl rounded-bl-sm p-4 text-slate-400 animate-pulse">
-                                Kuchař přemýšlí...
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <form onSubmit={handleFormSubmit} className="flex gap-3">
-                    <input
-                        className="flex-1 border border-slate-300 rounded-xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-[#4A4870] transition-shadow"
-                        value={input}
-                        placeholder="Zeptej se na recept..."
-                        onChange={(e) => setInput(e.target.value)}
-                        disabled={isLoading}
-                    />
-                    <Button
-                        type="submit"
-                        disabled={isLoading || !input.trim()}
-                        size="xl"
-                        className="bg-[#4A4870] hover:bg-[#3a3858]"
+                {messages.map((msg, index) => (
+                    <div
+                        key={index}
+                        className={`p-3 rounded-lg max-w-[80%] ${
+                            msg.role === 'user'
+                                ? 'bg-blue-500 text-white ml-auto' // Zpráva uživatele (vpravo, modrá)
+                                : 'bg-white text-black border border-gray-200 mr-auto' // Zpráva AI (vlevo, bílá)
+                        }`}
                     >
-                        Odeslat
-                    </Button>
-                </form>
+                        {msg.content}
+                    </div>
+                ))}
+                {isLoading && (
+                    <div className="bg-white text-gray-500 border border-gray-200 p-3 rounded-lg w-fit">
+                        AI přemýšlí...
+                    </div>
+                )}
             </div>
+
+            {/* Formulář pro odeslání */}
+            <form onSubmit={handleSubmit} className="flex gap-2">
+                <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Např. mám kuře, mrkev a rýži..."
+                    className="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-blue-500"
+                    disabled={isLoading}
+                />
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold disabled:bg-blue-300 transition-colors"
+                >
+                    Odeslat
+                </button>
+            </form>
         </div>
     );
 }
