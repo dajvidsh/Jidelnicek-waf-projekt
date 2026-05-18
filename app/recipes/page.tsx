@@ -6,6 +6,7 @@ import PageHeader from "@/app/components/Pageheader";
 import {Button} from "@/components/ui/button";
 import {useAuth} from "@/app/context/AuthContext";
 import {useRecipesFromFridge} from "@/hooks/useRecipesFromFridge";
+import {RecipeCard} from "@/app/components/RecipeCard";
 
 
 export default function Page() {
@@ -60,43 +61,16 @@ export default function Page() {
                         <p className="text-sm text-red-400">{error}</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {recipes.length > 0 ? (
-                            recipes.map((recipe) => (
-                                <Link
-                                    href={`/recipes/${recipe.id}`}
-                                    key={recipe.id}
-                                    className="group cursor-pointer border border-slate-100 rounded-lg overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all bg-white"
-                                >
-                                    <div className="aspect-4/3 w-full overflow-hidden">
-                                        <img
-                                            src={recipe.img}
-                                            alt={recipe.title}
-                                            className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
-                                        />
-                                    </div>
-
-                                    <div className="p-4">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <span
-                                                className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Recipes</span>
-                                            <div className="flex items-center gap-1">
-                                                <span className="text-xs font-bold text-primary">5.0</span>
-                                                <span className="text-yellow-400 text-xs">★</span>
-                                            </div>
-                                        </div>
-                                        <h3 className="text-primary font-bold text-sm md:text-base leading-tight">
-                                            {recipe.title}
-                                        </h3>
-                                    </div>
-                                </Link>
-                            ))
-                        ) : (
-                            <div
-                                className="col-span-full text-center py-10 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-                                <p className="text-slate-500">V lednici nemáte žádné suroviny pro vyhledání receptů.</p>
-                            </div>
-                        )}
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {recipes.map((recipe) => (
+                            <RecipeCard
+                                key={recipe.id}
+                                id={recipe.id}
+                                title={recipe.title}
+                                image={recipe.img}
+                                readyInMinutes={45}
+                            />
+                        ))}
                     </div>
                 )}
             </div>

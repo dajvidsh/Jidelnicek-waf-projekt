@@ -2,11 +2,9 @@
 
 import PageHeader from "@/app/components/Pageheader";
 import InputField from "@/app/components/InputField";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {Button} from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {useAuth} from "@/app/context/AuthContext";
 import {useShoppingList} from "@/hooks/useShoppingList";
+import {FoodTable} from "@/app/components/FoodTable";
 
 
 export default function Page() {
@@ -58,57 +56,13 @@ export default function Page() {
                     </div>
                 )}
             </div>
-            <Table>
-                <TableHeader className="bg-slate-50/50">
-                    <TableRow className="hover:bg-transparent border-b">
-                        <TableHead className="h-12 px-6 font-semibold text-slate-900">
 
-                        </TableHead>
-                        <TableHead className="h-12 px-6 font-semibold text-slate-900">
-                            Name
-                        </TableHead>
-                        <TableHead className="h-12 px-6 text-right font-semibold text-slate-900">
-                            Amount
-                        </TableHead>
-                    </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                    {foods.length > 0 ? (
-                        foods.map((food) => (
-                            <TableRow
-                                key={food.id}
-                                className="group transition-colors hover:bg-slate-50/80 border-b last:border-0"
-                            >
-                                <TableCell>
-                                    <div
-                                        className="cursor-pointer p-2"
-                                        onClick={() => handleCheck(food)}
-                                    >
-                                        <Checkbox />
-                                    </div>
-                                </TableCell>
-                                <TableCell className="px-6 py-4">
-                                    {food.name}
-                                </TableCell>
-                                <TableCell
-                                    className="px-6 py-4 text-right font-mono text-sm text-slate-500 tabular-nums">
-                                    {food.amount}{food.unit}
-                                </TableCell>
-                                <TableCell>
-                                    <Button variant="ghost" onClick={() => handleDelete(food.id)}><span
-                                        className={"text-red-700"}>X</span></Button>
-                                </TableCell>
-                            </TableRow>
-                        ))) : (
-                        <TableRow>
-                            <TableCell colSpan={4} className="text-center py-10 text-gray-500">
-                                Shopping list is empty
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+            <FoodTable
+                items={foods}
+                onDelete={handleDelete}
+                onCheck={handleCheck}
+                emptyMessage="Shopping list is empty"
+            />
 
         </div>
     )
