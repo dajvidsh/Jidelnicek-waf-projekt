@@ -1,12 +1,8 @@
 "use client"
-import {useEffect, useState} from "react";
-import {db} from "@/lib/firebase";
-import {addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, where} from "firebase/firestore";
 import PageHeader from "@/app/components/Pageheader";
 import InputField from "@/app/components/InputField";
 import {Button} from "@/components/ui/button";
 import { useAuth } from "@/app/context/AuthContext";
-
 
 import {
     Table,
@@ -17,56 +13,14 @@ import {
     TableRow
 } from "@/components/ui/table";
 import Link from "next/link";
-
-interface FoodItem {
-    id: string;
-    name: string;
-    amount: number;
-    unit: string;
-}
+import {useFridge} from "@/hooks/useFridge";
 
 export default function Page() {
 
     const { user } = useAuth();
-    const [foods, setFoods] = useState<FoodItem[]>([]);
 
-    useEffect(() => {
-        if (!user) return;
-        const q = query(collection(db, "fridge"),
-            where("userId", "==", user.uid),
-            orderBy("createdAt", "desc"));
+    const { foods, loading, handleAdd, handleDelete } = useFridge();
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const allItems = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...(doc.data() as Omit<FoodItem, 'id'>)
-            })) as FoodItem[];
-
-            setFoods(allItems);
-        });
-
-        return () => unsubscribe();
-    }, [user]);
-
-    const handleAdd = async (itemName: string, amount: number) => {
-        if (!itemName.trim() || !user) return;
-
-        try {
-            await addDoc(collection(db, "fridge"), {
-                name: itemName,
-                amount: amount,
-                unit: "ks",
-                createdAt: new Date(),
-                userId: user?.uid
-            });
-        } catch (e) {
-            console.error("Error adding ", e);
-        }
-    };
-
-    const handleDelete = async (id: string) => {
-        await deleteDoc(doc(db, "fridge", id));
-    };
     if (!user) return null;
 
     return (

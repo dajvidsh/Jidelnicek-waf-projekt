@@ -4,46 +4,13 @@ import React,{ useEffect, useState } from 'react';
 import {Button} from "@/components/ui/button"
 import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
-
-interface RandomRecipe {
-    id: number;
-    title: string;
-    image: string;
-    readyInMinutes: number;
-}
+import {useRandomRecipes} from "@/hooks/useRandomRecipes";
 
 function Home() {
+
     const { user } = useAuth();
 
-    const [recipes, setRecipes] = useState<RandomRecipe[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (!user) return;
-
-        const fetchRandomRecipes = async () => {
-            try {
-                setLoading(true);
-                const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
-
-                const res = await fetch(
-                    `https://api.spoonacular.com/recipes/random?number=4&apiKey=${apiKey}`
-                );
-                const data = await res.json();
-
-                if (data && data.recipes) {
-                    setRecipes(data.recipes);
-                }
-            } catch (error) {
-                console.error("Chyba pri stahovani receptu:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchRandomRecipes().catch(console.error);
-    }, [user]);
-
+    const { recipes, loading, fetchRandomRecipes } = useRandomRecipes();
 
     if (!user) return null;
 

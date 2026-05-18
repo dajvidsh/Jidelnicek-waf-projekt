@@ -2,87 +2,28 @@
 
 import PageHeader from "@/app/components/Pageheader";
 import InputField from "@/app/components/InputField";
-import {addDoc, collection, deleteDoc, doc, onSnapshot, orderBy, query, where} from "firebase/firestore";
-import {db} from "@/lib/firebase";
-import {useEffect, useState} from "react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Button} from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {useAuth} from "@/app/context/AuthContext";
+import {useShoppingList} from "@/hooks/useShoppingList";
 
-
-interface FoodItem {
-    id: string;
-    name: string;
-    amount: number;
-    unit: string;
-}
-
-const API_KEY = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
 
 export default function Page() {
 
-    const { user } = useAuth()
-    const [foods, setFoods] = useState<FoodItem[]>([]);
-    const [itemName, setItemName] = useState("");
-    const [suggestions, setSuggestions] = useState<{ id: number; name: string; image: string }[]>([]);
+    const { user } = useAuth();
 
-    // Firebase listener
-    useEffect(() => {
-        if (!user) return;
-        const q = query(
-            collection(db, "shoppingList"),
-            where("userId","==", user?.uid),
-            orderBy("createdAt", "desc")
-        );
-
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-                setFoods(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as FoodItem)));
-            },
-            (error) => {
-                console.error("Chyba při stahování seznamu:", error);
-            }
-        );
-
-        return () => unsubscribe();
-
-    }, [user]);
-
-    // Spoonacular autocomplete
-    useEffect(() => {
-        if (itemName.trim().length <= 2) {
-            return
-        }
-
-        const timer = setTimeout(async () => {
-            try {
-                const res = await fetch(`https://api.spoonacular.com/food/ingredients/autocomplete?query=${itemName}&number=5&apiKey=${API_KEY}`);
-                const data = await res.json();
-                if (Array.isArray(data)) setSuggestions(data);
-            } catch (e) {
-                console.error("Spoonacular error:", e);
-            }
-        }, 400);
-
-        return () => clearTimeout(timer);
-    }, [itemName]);
-
-    const handleAdd = async (name: string, amount: number) => {
-        if (!name.trim() || !user) return;
-        const normalized = name.charAt(0).toUpperCase() + name.slice(1);
-        await addDoc(collection(db, "shoppingList"), { name: normalized, amount, unit: "ks", createdAt: new Date(), userId: user?.uid });
-        setItemName("");
-        setSuggestions([]);
-    };
-
-    const handleDelete = async (id: string) => {
-        await deleteDoc(doc(db, "shoppingList", id));
-    };
-
-    const handleCheck = async ({ id, name, amount, unit }: FoodItem) => {
-        await addDoc(collection(db, "fridge"), { name, amount, unit, createdAt: new Date(), userId: user?.uid });
-        await deleteDoc(doc(db, "shoppingList", id));
-    };
+    const {
+        foods,
+        loading,
+        itemName,
+        setItemName,
+        suggestions,
+        setSuggestions,
+        handleAdd,
+        handleDelete,
+        handleCheck
+    } = useShoppingList();
 
     if (!user) return null;
     return (

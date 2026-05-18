@@ -1,72 +1,17 @@
 "use client";
 
 import * as React from "react";
-import {useEffect, useState} from "react";
 import Link from "next/link";
 import PageHeader from "@/app/components/Pageheader";
 import {Button} from "@/components/ui/button";
-
-import {db} from "@/lib/firebase";
-import {collection, getDocs} from "firebase/firestore";
 import {useAuth} from "@/app/context/AuthContext";
+import {useRecipesFromFridge} from "@/hooks/useRecipesFromFridge";
 
-interface Recipe {
-    id: number;
-    title: string;
-    img: string;
-}
-
-interface SpoonacularRecipe {
-    id: number;
-    title: string;
-    image: string;
-}
 
 export default function Page() {
-    const { user } = useAuth();
+    const {user} = useAuth();
 
-    const [recipes, setRecipes] = useState<Recipe[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchIngredientsAndRecipes = async () => {
-            try {
-                setLoading(true);
-
-                const querySnapshot = await getDocs(collection(db, "fridge"));
-                const ingredientsList = querySnapshot.docs.map(doc => doc.data().name);
-
-                if (ingredientsList.length === 0) {
-                    setRecipes([]);
-                    return;
-                }
-
-                const ingredientsString = ingredientsList.join(",");
-                const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
-
-                const response = await fetch(
-                    `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${encodeURIComponent(ingredientsString)}&number=12&ranking=2&apiKey=${apiKey}`
-                );
-
-                const data = await response.json();
-
-                if (Array.isArray(data)) {
-                    const formattedRecipes = data.map((r: SpoonacularRecipe) => ({
-                        id: r.id,
-                        title: r.title,
-                        img: r.image
-                    }));
-                    setRecipes(formattedRecipes);
-                }
-            } catch (error) {
-                console.error("Chyba při načítání:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchIngredientsAndRecipes();
-    }, []);
+    const {recipes, loading, error} = useRecipesFromFridge();
 
     if (!user) return null;
 
