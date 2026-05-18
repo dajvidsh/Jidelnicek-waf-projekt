@@ -4,14 +4,27 @@ import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {signOut} from "firebase/auth";
 import {auth} from "@/lib/firebase";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
+
+const NAV_ITEMS = [
+    { href: "/home", label: "Home" },
+    { href: "/fridge", label: "Fridge" },
+    { href: "/recipes", label: "Recipes" },
+    { href: "/shoppingList", label: "Shopping list" },
+    { href: "/profile", label: "Profile" },
+    { href: "/chat", label: "Chat" },
+];
+
+const LINK_CLASSES = "block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide";
+
 
 function Topbar() {
     const [menuOpen, setMenuOpen] = useState(false);
 
     const pathname = usePathname();
 
-    if (pathname === '/login' || pathname === '/register' || pathname === '/') {
+    // 2. Elegantnější zápis kontroly stránek pomocí pole a metody .includes()
+    if (['/login', '/register', '/'].includes(pathname)) {
         return null;
     }
 
@@ -22,6 +35,8 @@ function Topbar() {
             console.error("Error while logout:", error);
         }
     };
+
+    const closeMenu = () => setMenuOpen(false);
 
     return (
         <nav className="bg-white border-b border-gray-100 relative">
@@ -37,49 +52,25 @@ function Topbar() {
                             className="p-2 text-gray-400 focus:outline-none"
                             onClick={() => setMenuOpen(!menuOpen)}
                         >
-                            <span className="material-icons">
-                                {menuOpen ? 'X' : '|||'}
-                            </span>
+                            {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div
-                className={`fixed top-16 left-0 h-[calc(100vh-64px)] w-[70%] bg-white border-r border-gray-100 z-40 transform transition-transform duration-300 ease-in-out sm:hidden ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className={`fixed top-16 left-0 h-[calc(100vh-64px)] w-[70%] bg-white border-r border-gray-100 z-40 transform transition-transform duration-300 ease-in-out sm:hidden ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <ul className="py-4">
-                    <li>
-                        <Link href="/home"
-                           onClick={() => setMenuOpen(false)}
-                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Home</Link>
-                    </li>
-                    <li>
-                        <Link href="/fridge"
-                              onClick={() => setMenuOpen(false)}
-                              className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Fridge</Link>
-                    </li>
-                    <li>
-                        <Link href="/recipes"
-                           onClick={() => setMenuOpen(false)}
-                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Recipes</Link>
-                    </li>
-                    <li>
-                        <Link href="/shoppingList"
-                           onClick={() => setMenuOpen(false)}
-                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Shopping
-                            list</Link>
-                    </li>
-                    <li>
-                        <Link href="/profile"
-                           onClick={() => setMenuOpen(false)}
-                           className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Profile</Link>
-                    </li>
-                    <li>
-                        <Link href="/chat"
-                              onClick={() => setMenuOpen(false)}
-                              className="block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide">Chat</Link>
-
-                    </li>
+                    {NAV_ITEMS.map((item) => (
+                        <li key={item.href}>
+                            <Link
+                                href={item.href}
+                                onClick={closeMenu}
+                                className={LINK_CLASSES}
+                            >
+                                {item.label}
+                            </Link>
+                        </li>
+                    ))}
                     <li>
                         <button
                             onClick={handleLogout}
@@ -93,10 +84,7 @@ function Topbar() {
             </div>
 
             {menuOpen && (
-                <div
-                    className="fixed top-16 inset-0 z-30 sm:hidden"
-                    onClick={() => setMenuOpen(false)}
-                />
+                <div className="fixed top-16 inset-0 z-30 sm:hidden" onClick={closeMenu} />
             )}
         </nav>
     );

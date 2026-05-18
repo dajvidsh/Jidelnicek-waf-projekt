@@ -13,6 +13,9 @@
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
 
+    --color-brand: #4A4870;
+    --color-brand-light: #636191;
+
     /* Barvy – namapování CSS proměnných na Tailwind tokeny */
     --color-background:          var(--background);
     --color-foreground:          var(--foreground);

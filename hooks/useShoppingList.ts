@@ -86,6 +86,8 @@ export const useShoppingList = () => {
     };
 
     const handleCheck = async ({ id, name, amount, unit }: FoodItem) => {
+        if (!user) return;
+
         try {
             await addDoc(collection(db, "fridge"), {
                 name,

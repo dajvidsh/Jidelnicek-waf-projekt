@@ -2,24 +2,15 @@
 import PageHeader from "@/app/components/Pageheader";
 import InputField from "@/app/components/InputField";
 import {Button} from "@/components/ui/button";
-import { useAuth } from "@/app/context/AuthContext";
-
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
-} from "@/components/ui/table";
+import {useAuth} from "@/app/context/AuthContext";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import Link from "next/link";
 import {useFridge} from "@/hooks/useFridge";
 
 export default function Page() {
 
-    const { user } = useAuth();
-
-    const { foods, loading, handleAdd, handleDelete } = useFridge();
+    const {user} = useAuth();
+    const {foods, handleAdd, handleDelete} = useFridge();
 
     if (!user) return null;
 
@@ -27,18 +18,13 @@ export default function Page() {
         <div>
             <PageHeader title={"My Fridge"}/>
 
-            <InputField label={"Add to fridge..."} onAdd={(name, amount) => handleAdd(name, amount)}></InputField>
+            <InputField label={"Add to fridge..."} onAdd={handleAdd}></InputField>
 
             <Table>
                 <TableHeader className="bg-slate-50/50">
                     <TableRow className="hover:bg-transparent border-b">
-                        <TableHead className="h-12 px-6 font-semibold text-slate-900">
-                            Name
-                        </TableHead>
-                        <TableHead className="h-12 px-6 text-right font-semibold text-slate-900">
-                            Amount
-                        </TableHead>
-                        {/*<TableHead>Unit</TableHead>*/}
+                        <TableHead className="h-12 px-6 font-semibold text-primary">Name</TableHead>
+                        <TableHead className="h-12 px-6 text-right font-semibold text-primary">Amount</TableHead>
                     </TableRow>
                 </TableHeader>
 
@@ -56,7 +42,6 @@ export default function Page() {
                                     className="px-6 py-4 text-right font-mono text-sm text-slate-500 tabular-nums">
                                     {food.amount}{food.unit}
                                 </TableCell>
-                                {/*<TableCell>{food.unit}</TableCell>*/}
                                 <TableCell>
                                     <Button variant="ghost" onClick={() => handleDelete(food.id)}><span
                                         className={"text-red-700"}>X</span></Button>
@@ -75,8 +60,10 @@ export default function Page() {
             <br/>
             <br/>
             <Link href="/recipes" className="flex-1">
-            <Button variant={'default'} className="w-full h-14.5 items-center flex justify-start p-4 font-bold">Find
-                recipes {'->'}</Button></Link>
+                <Button variant="default" className="w-full h-14.5 items-center flex justify-start p-4 font-bold">
+                    Find recipes {'->'}
+                </Button>
+            </Link>
 
         </div>
     );

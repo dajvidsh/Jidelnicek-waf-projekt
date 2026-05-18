@@ -52,9 +52,9 @@ export default function RootLayout({
                         {children}
                     </main>
 
-                    {/*<footer className="border-t py-6 text-center text-sm text-gray-500 bg-white">*/}
-                    {/*  © {new Date().getFullYear()} Jídelníček*/}
-                    {/*</footer>*/}
+                    <footer className="border-t py-4 text-center text-sm text-gray-500 bg-white">
+                      © {new Date().getFullYear()} Jídelníček
+                    </footer>
                 </AuthProvider>
             </body>
       </html>

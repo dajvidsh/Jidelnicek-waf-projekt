@@ -51,8 +51,13 @@ export default function Page() {
 
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#636191] mb-4"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
                         <p className="text-slate-500 font-medium">Hledám recepty podle vaší lednice...</p>
+                    </div>
+                ) : error ? (
+                    <div className="text-center py-12 bg-red-50/50 rounded-3xl border border-dashed border-red-200 max-w-xl mx-auto">
+                        <p className="text-red-500 font-semibold mb-1">Nepodařilo se načíst recepty</p>
+                        <p className="text-sm text-red-400">{error}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -67,7 +72,7 @@ export default function Page() {
                                         <img
                                             src={recipe.img}
                                             alt={recipe.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
                                         />
                                     </div>
 
@@ -76,11 +81,11 @@ export default function Page() {
                                             <span
                                                 className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Recipes</span>
                                             <div className="flex items-center gap-1">
-                                                <span className="text-xs font-bold text-slate-700">5.0</span>
+                                                <span className="text-xs font-bold text-primary">5.0</span>
                                                 <span className="text-yellow-400 text-xs">★</span>
                                             </div>
                                         </div>
-                                        <h3 className="text-[#4A4870] font-bold text-sm md:text-base leading-tight">
+                                        <h3 className="text-primary font-bold text-sm md:text-base leading-tight">
                                             {recipe.title}
                                         </h3>
                                     </div>
