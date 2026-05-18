@@ -12,7 +12,6 @@ export interface FoodItem {
 
 export const useFridge = () => {
     const { user } = useAuth();
-
     const [foods, setFoods] = useState<FoodItem[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -25,7 +24,7 @@ export const useFridge = () => {
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const allItems = snapshot.docs.map(doc => ({
                 id: doc.id,
-                ...(doc.data() as Omit<FoodItem, 'id'>)
+                ...(doc.data())
             })) as FoodItem[];
 
             setFoods(allItems);

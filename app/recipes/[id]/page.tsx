@@ -2,10 +2,11 @@
 
 import {useParams} from "next/navigation";
 import PageHeader from "@/app/components/Pageheader";
-import {useEffect, useState} from "react";
 import * as React from "react";
 import {Checkbox} from "@/components/ui/checkbox";
 import {useAuth} from "@/app/context/AuthContext";
+import useSWR from "swr";
+import {fetcher} from "@/lib/fetcher";
 
 interface RecipeDetailInfo {
     id: number;
@@ -23,36 +24,14 @@ export default function Page() {
     const params = useParams();
     const id = params.id;
     const {user} = useAuth();
+    const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
+    const url = id ? `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}` : null;
 
-    const [recipeDetail, setRecipeDetail] = useState<RecipeDetailInfo | null>(null);
+    const {data: recipeDetail, isLoading} = useSWR<RecipeDetailInfo>(url, fetcher, {
+        revalidateOnFocus: false
+    });
 
-    useEffect(() => {
-        if (id == null) return;
-
-        const fetchDetail = async () => {
-            try {
-                const cachedDetail = sessionStorage.getItem(`recipeDetail_${id}`);
-                if (cachedDetail) {
-                    setRecipeDetail(JSON.parse(cachedDetail));
-                    return;
-                }
-
-                const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
-                const response = await fetch(
-                    `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}`
-                )
-                const data = await response.json();
-
-                sessionStorage.setItem(`recipeDetail_${id}`, JSON.stringify(data));
-                setRecipeDetail(data);
-            } catch (err) {
-                console.log("Error loading data into recipe details", err);
-            }
-        }
-        fetchDetail().catch(console.error);
-    }, [id])
-
-    if (!recipeDetail) {
+    if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center py-40">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-4"></div>
@@ -61,7 +40,7 @@ export default function Page() {
         );
     }
 
-    if (!user) return null;
+    if (!user || !recipeDetail) return null;
 
     return (
         <div className="bg-white min-h-screen pb-10">

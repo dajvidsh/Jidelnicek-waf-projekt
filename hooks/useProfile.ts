@@ -5,7 +5,6 @@ import { doc, getDoc, collection, query, where, getDocs } from "firebase/firesto
 import { signOut } from "firebase/auth";
 import { useAuth } from "@/app/context/AuthContext";
 
-// Přesný název vašeho rozhraní
 export interface UserData {
     name: string;
     surname: string;
@@ -15,8 +14,6 @@ export interface UserData {
 
 export const useProfile = () => {
     const { user } = useAuth();
-
-    // Přesné názvy stavů z vašeho kódu
     const [userData, setUserData] = useState<UserData>();
     const [fridgeCount, setFridgeCount] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(true);
@@ -34,7 +31,6 @@ export const useProfile = () => {
                     setUserData(docSnap.data() as UserData);
                 }
 
-                // 2. OPRAVA BEZPEČNOSTI: Filtrujeme lednici pouze pro přihlášeného uživatele!
                 const fridgeRef = collection(db, "fridge");
                 const q = query(fridgeRef, where("userId", "==", user.uid));
                 const fridgeSnap = await getDocs(q);
@@ -56,7 +52,6 @@ export const useProfile = () => {
         fetchUserData().catch(console.error);
     }, [user]);
 
-    // Přesný název vaší funkce pro odhlášení
     const handleLogout = async () => {
         try {
             await signOut(auth);

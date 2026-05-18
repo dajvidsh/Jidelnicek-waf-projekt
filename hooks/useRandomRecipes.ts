@@ -1,5 +1,6 @@
-import {useState, useEffect, useCallback} from 'react';
 import {useAuth} from "@/app/context/AuthContext";
+import useSWR from "swr";
+import {fetcher} from "@/lib/fetcher";
 
 export interface RandomRecipe {
     id: number;
@@ -9,48 +10,28 @@ export interface RandomRecipe {
 }
 
 export const useRandomRecipes = () => {
-    const {user} = useAuth();
+    const { user } = useAuth();
+    const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
 
-    const [recipes, setRecipes] = useState<RandomRecipe[]>([]);
-    const [loading, setLoading] = useState(true);
+    let url = null;
+    if (user) {
+        url = `https://api.spoonacular.com/recipes/random?number=4&apiKey=${apiKey}`;
+    }
 
-    const fetchRandomRecipes = useCallback(async (forceReload = false) => {
-        try {
-            setLoading(true);
+    // 2. PŘEDÁME PRÁCI SWR
+    // SWR zavolá náš "fetcher" na danou URL adresu a samo nám rovnou vrátí 4 věci:
+    // - data: to, co API vrátilo
+    // - error: případnou chybu (spadl internet, špatný klíč)
+    // - isLoading: true/false podle toho, jestli stahování zrovna běží
+    // - mutate: funkci, kterou když zavoláme, SWR vše smaže a stáhne data znovu
+    const { data, error, isLoading, mutate } = useSWR(url, fetcher, {
+        revalidateOnFocus: false
+    });
 
-            if (!forceReload) {
-                const cachedRandom = sessionStorage.getItem('cachedRandomRecipes');
-                if (cachedRandom) {
-                    setRecipes(JSON.parse(cachedRandom));
-                    setLoading(false);
-                    return;
-                }
-            }
-
-            const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
-
-            const res = await fetch(
-                `https://api.spoonacular.com/recipes/random?number=4&apiKey=${apiKey}`
-            );
-            const data = await res.json();
-
-            if (data && data.recipes) {
-                setRecipes(data.recipes);
-                sessionStorage.setItem('cachedRandomRecipes', JSON.stringify(data.recipes));
-            }
-        } catch (error) {
-            console.error("Chyba pri stahovani receptu:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        if (!user) return;
-        fetchRandomRecipes();
-    }, [user, fetchRandomRecipes]);
-
-    const handleReload = () => fetchRandomRecipes(true);
-
-    return {recipes, loading, fetchRandomRecipes: handleReload};
+    return {
+        recipes: data ? data.recipes : [],
+        loading: isLoading,
+        error: error,
+        fetchRandomRecipes: () => mutate() // Když stránka zavolá "reload", my zavoláme SWR "mutate"
+    };
 };
