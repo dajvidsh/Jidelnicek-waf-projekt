@@ -8,6 +8,12 @@ import {useAuth} from "@/app/context/AuthContext";
 import {useRecipesFromFridge} from "@/hooks/useRecipesFromFridge";
 import {RecipeCard} from "@/app/components/RecipeCard";
 
+interface Recipe {
+    id: number;
+    title: string;
+    img: string;
+    readyInMinutes?: number;
+}
 
 export default function Page() {
     const {user} = useAuth();
@@ -62,14 +68,13 @@ export default function Page() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {recipes.map((recipe) => (
+                        {recipes.map((recipe: Recipe) => (
                             <RecipeCard
                                 key={recipe.id}
                                 id={recipe.id}
                                 title={recipe.title}
                                 image={recipe.img}
-                                readyInMinutes={45}
-                            />
+                                readyInMinutes={recipe.readyInMinutes || 45}                            />
                         ))}
                     </div>
                 )}
