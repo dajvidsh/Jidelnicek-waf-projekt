@@ -6,6 +6,13 @@ import {useAuth} from "@/app/context/AuthContext";
 import {useRandomRecipes} from "@/hooks/useRandomRecipes";
 import {RecipeCard} from "@/app/components/RecipeCard";
 
+interface Recipe {
+    id: number;
+    title: string;
+    image: string;
+    readyInMinutes: number;
+}
+
 function Home() {
 
     const {user} = useAuth();
@@ -51,7 +58,7 @@ function Home() {
                 </div>
             ) : (
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    {recipes.map((recipe) => (
+                    {recipes.map((recipe: Recipe) => (
                         <RecipeCard
                             key={recipe.id}
                             id={recipe.id}
