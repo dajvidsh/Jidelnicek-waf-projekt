@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { Clock, Star, ArrowRight } from "lucide-react";
+import {Clock, Star, ArrowRight, Check, Download} from "lucide-react";
+import { useAuth } from "@/app/context/AuthContext";
+import { useSavedRecipes } from "@/hooks/useSavedRecipe";
 
 interface RecipeCardProps {
     id: number;
@@ -12,9 +14,38 @@ interface RecipeCardProps {
 }
 
 export function RecipeCard({ id, title, image, readyInMinutes, rating, category }: RecipeCardProps) {
+    const { user } = useAuth();
+    const { savedIds, downloadRecipe } = useSavedRecipes(user?.uid);
+
+    const isDownloaded = savedIds.includes(id);
+
     return (
         <Link href={`/recipes/${id}`} className="block group outline-none h-full">
-            <Card className="h-full overflow-hidden border border-slate-100/80 shadow-none hover:-translate-y-1 hover:border-slate-200 transition-all duration-300 p-0 gap-0 flex flex-col rounded-[20px] bg-white">
+            <Card className="h-full overflow-hidden border border-slate-100/80 shadow-none hover:-translate-y-1 hover:border-slate-200 transition-all duration-300 p-0 gap-0 flex flex-col rounded-[20px] bg-white relative" >
+
+                {user && (
+                    <div className="absolute top-3 right-3 z-20">
+                        {isDownloaded ? (
+                            <button
+                                disabled
+                                onClick={(e) => e.preventDefault()} // Pro jistotu blokujeme prokliknutí
+                                className="p-2 bg-green-50/90 text-green-600 backdrop-blur-md rounded-full shadow-sm cursor-default"
+                            >
+                                <Check className="w-5 h-5" />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    downloadRecipe({id, title, image, readyInMinutes}).catch(console.error)
+                                }}
+                                className="p-2 bg-white/90 text-slate-500 hover:bg-white hover:text-slate-800 backdrop-blur-md rounded-full shadow-sm transition-all duration-200"
+                            >
+                                <Download className="w-5 h-5" />
+                            </button>
+                        )}
+                    </div>
+                )}
 
                 <div className="aspect-4/3 w-full overflow-hidden relative shrink-0">
                     <img
