@@ -1,33 +1,39 @@
 "use client";
 
 import * as React from "react";
+import { useState } from "react";
 import Link from "next/link";
 import PageHeader from "@/app/components/Pageheader";
-import {Button} from "@/components/ui/button";
-import {useAuth} from "@/app/context/AuthContext";
-import {useRecipesFromFridge} from "@/hooks/useRecipesFromFridge";
-import {RecipeCard} from "@/app/components/RecipeCard";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/app/context/AuthContext";
+import { useRecipesFromFridge } from "@/hooks/useRecipesFromFridge";
+import { useMyRecipes } from "@/hooks/useMyRecipes";
+import { RecipeCard } from "@/app/components/RecipeCard";
 
 interface Recipe {
     id: number;
     title: string;
-    img: string;
+    image?: string;
+    img?: string;
     readyInMinutes?: number;
 }
 
 export default function Page() {
-    const {user} = useAuth();
+    const { user } = useAuth();
 
-    const {recipes, loading, error} = useRecipesFromFridge();
+    const [isSearching, setIsSearching] = useState(false);
+
+    const { savedRecipes, loadingCookbook } = useMyRecipes(user?.uid);
+
+    const { recipes, loading, error } = useRecipesFromFridge();
 
     if (!user) return null;
 
     return (
         <div>
-            <PageHeader title={"Recipes"}/>
-            <div className="max-w-7xl mx-auto">
-
-                <div className="flex justify-center gap-4 mb-10 w-full max-w-4xl mx-auto">
+            <PageHeader title={"Recipes"} />
+            <div className="max-w-7xl mx-auto px-4 pb-12">
+                <div className="flex justify-center gap-4 mb-10 w-full max-w-4xl mx-auto mt-4">
                     <Link href="/fridge" className="flex-1">
                         <Button
                             variant="default"
@@ -37,7 +43,7 @@ export default function Page() {
                             In fridge
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                  strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                                <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </Button>
                     </Link>
@@ -50,34 +56,81 @@ export default function Page() {
                             Shopping list
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                  strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                                <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </Button>
                     </Link>
                 </div>
 
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-                        <p className="text-slate-500 font-medium">Hledám recepty podle vaší lednice...</p>
-                    </div>
-                ) : error ? (
-                    <div className="text-center py-12 bg-red-50/50 rounded-3xl border border-dashed border-red-200 max-w-xl mx-auto">
-                        <p className="text-red-500 font-semibold mb-1">Nepodařilo se načíst recepty</p>
-                        <p className="text-sm text-red-400">{error}</p>
-                    </div>
+                {/* prepinani */}
+                <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
+                    <h2 className="text-2xl font-bold text-slate-800">
+                        {isSearching ? "Recipes from fridge" : "My Cookbook"}
+                    </h2>
+
+                    {isSearching ? (
+                        <Button variant="outline" onClick={() => setIsSearching(false)}>
+                            ← Back to Cookbook
+                        </Button>
+                    ) : (
+                        <Button onClick={() => setIsSearching(true)}>
+                            🔍 Search by fridge
+                        </Button>
+                    )}
+                </div>
+
+                {isSearching ? (
+                    /* -----fridge recipe ----- */
+                    loading ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                            <p className="text-slate-500 font-medium">Hledám recepty podle vaší lednice...</p>
+                        </div>
+                    ) : error ? (
+                        <div className="text-center py-12 bg-red-50/50 rounded-3xl border border-dashed border-red-200 max-w-xl mx-auto">
+                            <p className="text-red-500 font-semibold mb-1">Nepodařilo se načíst recepty</p>
+                            <p className="text-sm text-red-400">{error}</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {recipes.map((recipe: Recipe) => (
+                                <RecipeCard
+                                    key={`fridge-${recipe.id}`}
+                                    id={recipe.id}
+                                    title={recipe.title}
+                                    image={recipe.image || recipe.img || ""}
+                                    readyInMinutes={recipe.readyInMinutes || 45}
+                                />
+                            ))}
+                        </div>
+                    )
                 ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {recipes.map((recipe: Recipe) => (
-                            <RecipeCard
-                                key={recipe.id}
-                                id={recipe.id}
-                                title={recipe.title}
-                                image={recipe.img}
-                                readyInMinutes={recipe.readyInMinutes || 45}                            />
-                        ))}
-                    </div>
+                    /* ----- my recipe ----- */
+                    loadingCookbook ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                            <p className="text-slate-500 font-medium">Načítám vaši kuchařku...</p>
+                        </div>
+                    ) : savedRecipes.length === 0 ? (
+                        <div className="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200 max-w-2xl mx-auto">
+                            <p className="text-slate-500 font-medium mb-2">Vaše kuchařka je zatím prázdná</p>
+                            <p className="text-sm text-slate-400">Najděte si nějaký recept podle lednice a uložte si ho sem!</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {savedRecipes.map((recipe: Recipe) => (
+                                <RecipeCard
+                                    key={`saved-${recipe.id}`}
+                                    id={recipe.id}
+                                    title={recipe.title}
+                                    image={recipe.image || recipe.img || ""}
+                                    readyInMinutes={recipe.readyInMinutes || 45}
+                                />
+                            ))}
+                        </div>
+                    )
                 )}
+
             </div>
         </div>
     );
