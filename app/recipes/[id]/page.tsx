@@ -1,12 +1,16 @@
 "use client";
 
-import {useParams} from "next/navigation";
-import PageHeader from "@/app/components/Pageheader";
 import * as React from "react";
-import {Checkbox} from "@/components/ui/checkbox";
-import {useAuth} from "@/app/context/AuthContext";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import PageHeader from "@/app/components/Pageheader";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/app/context/AuthContext";
 import useSWR from "swr";
-import {fetcher} from "@/lib/fetcher";
+import { fetcher } from "@/lib/fetcher";
+import { db } from "@/lib/firebase";
+import { doc, onSnapshot, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { Heart, Trash2 } from "lucide-react";
 
 interface RecipeDetailInfo {
     id: number;
@@ -20,16 +24,66 @@ interface RecipeDetailInfo {
 }
 
 export default function Page() {
-
     const params = useParams();
-    const id = params.id;
-    const {user} = useAuth();
+    const router = useRouter();
+    const id = params.id as string;
+    const { user } = useAuth();
+
     const apiKey = process.env.NEXT_PUBLIC_SPOONACULAR_API_KEY;
     const url = id ? `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}` : null;
 
-    const {data: recipeDetail, isLoading} = useSWR<RecipeDetailInfo>(url, fetcher, {
+    const { data: recipeDetail, isLoading } = useSWR<RecipeDetailInfo>(url, fetcher, {
         revalidateOnFocus: false
     });
+
+    const [isSaved, setIsSaved] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    useEffect(() => {
+        if (!user || !id) return;
+
+        const docRef = doc(db, "users", user.uid, "savedRecipes", id);
+
+        const unsubscribe = onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                setIsSaved(true);
+                setIsFavorite(docSnap.data().favorite === true);
+            } else {
+                setIsSaved(false);
+                setIsFavorite(false);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [user, id]);
+
+    const handleToggleFavorite = async () => {
+        if (!user || !isSaved) return;
+
+        const docRef = doc(db, "users", user.uid, "savedRecipes", id);
+
+        try {
+            await updateDoc(docRef, { favorite: !isFavorite });
+        } catch (error) {
+            console.error("Chyba při změně oblíbených:", error);
+        }
+    };
+
+    const handleRemove = async () => {
+        if (!user) return;
+
+        const confirmDelete = window.confirm("Opravdu chcete tento recept smazat z kuchařky?");
+        if (!confirmDelete) return;
+
+        const docRef = doc(db, "users", user.uid, "savedRecipes", id);
+
+        try {
+            await deleteDoc(docRef);
+            router.push("/recipes");
+        } catch (error) {
+            console.error("Chyba při mazání receptu:", error);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -44,10 +98,29 @@ export default function Page() {
 
     return (
         <div className="bg-white min-h-screen pb-10">
-
-            <PageHeader title={recipeDetail.title}/>
+            <PageHeader title={recipeDetail.title} />
 
             <div className="max-w-3xl mx-auto px-6">
+
+                {isSaved && (
+                    <div className="flex gap-3 mb-4 justify-start">
+                        <button
+                            onClick={handleToggleFavorite}
+                            className="p-3 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-full transition-colors border border-slate-100"
+                            title={isFavorite ? "Odebrat z oblíbených" : "Přidat do oblíbených"}
+                        >
+                            <Heart className={`w-6 h-6 ${isFavorite ? "fill-red-500 text-red-500" : ""}`} />
+                        </button>
+
+                        <button
+                            onClick={handleRemove}
+                            className="p-3 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-full transition-colors border border-slate-100"
+                            title="Smazat recept"
+                        >
+                            <Trash2 className="w-6 h-6" />
+                        </button>
+                    </div>
+                )}
 
                 <div className="w-full mb-8 rounded-2xl overflow-hidden bg-slate-50 shadow-sm">
                     <img
@@ -60,8 +133,7 @@ export default function Page() {
                 <div className="mb-10 flex flex-col gap-4">
                     {recipeDetail.extendedIngredients?.map((ingredient, index) => (
                         <div key={`${ingredient.id}-${index}`}>
-                            <label
-                                className="flex items-center space-x-3 text-primary font-bold text-sm md:text-base cursor-pointer">
+                            <label className="flex items-center space-x-3 text-primary font-bold text-sm md:text-base cursor-pointer">
                                 <Checkbox className="border-primary text-primary w-5 h-5"/>
                                 <span>{ingredient.original}</span>
                             </label>
@@ -71,7 +143,6 @@ export default function Page() {
 
                 <div>
                     <h3 className="text-primary font-bold text-lg mb-3">Instructions</h3>
-
                     <div className="text-slate-700 text-sm md:text-base leading-relaxed space-y-4">
                         {recipeDetail.instructions}
                     </div>
@@ -80,5 +151,4 @@ export default function Page() {
             </div>
         </div>
     );
-
 }
