@@ -16,8 +16,6 @@ export const useShoppingList = () => {
     const { user } = useAuth();
 
     const [foods, setFoods] = useState<FoodItem[]>([]);
-    const [itemName, setItemName] = useState("");
-    const [suggestions, setSuggestions] = useState<{ id: number; name: string; image: string }[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -41,41 +39,6 @@ export const useShoppingList = () => {
         return () => unsubscribe();
     }, [user]);
 
-    useEffect(() => {
-        const queryText = itemName.trim().toLowerCase();
-
-        if (queryText.length <= 2) {
-            setSuggestions([]);
-            return;
-        }
-
-        const timer = setTimeout(async () => {
-            const cacheKey = `autocomplete_${queryText}`;
-            const cachedData = sessionStorage.getItem(cacheKey);
-
-            if (cachedData) {
-                setSuggestions(JSON.parse(cachedData));
-                return;
-            }
-
-            try {
-                const res = await fetch(`https://api.spoonacular.com/food/ingredients/autocomplete?query=${queryText}&number=5&apiKey=${API_KEY}`);
-
-                if (!res.ok) throw new Error("Chyba při načítání autocomplete");
-
-                const data = await res.json();
-
-                if (Array.isArray(data)) {
-                    setSuggestions(data);
-                    sessionStorage.setItem(cacheKey, JSON.stringify(data));
-                }
-            } catch (e) {
-                console.error("Spoonacular error:", e);
-            }
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [itemName]);
 
     const handleAdd = async (name: string, amount: number) => {
         if (!name.trim() || !user) return;
@@ -88,8 +51,6 @@ export const useShoppingList = () => {
                 createdAt: new Date(),
                 userId: user.uid
             });
-            setItemName("");
-            setSuggestions([]);
         } catch (e) {
             console.error("Error adding item:", e);
         }
@@ -123,10 +84,6 @@ export const useShoppingList = () => {
     return {
         foods,
         loading,
-        itemName,
-        setItemName,
-        suggestions,
-        setSuggestions,
         handleAdd,
         handleDelete,
         handleCheck

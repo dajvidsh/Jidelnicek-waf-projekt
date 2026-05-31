@@ -1,6 +1,6 @@
 "use client"
 import PageHeader from "@/app/components/Pageheader";
-import InputField from "@/app/components/InputField";
+import AutocompleteInputField from "@/app/components/AutocompleteInputField";
 import {Button} from "@/components/ui/button";
 import {useAuth} from "@/app/context/AuthContext";
 import Link from "next/link";
@@ -10,7 +10,12 @@ import {FoodTable} from "@/app/components/FoodTable";
 export default function Page() {
 
     const {user} = useAuth();
-    const {foods, handleAdd, handleDelete} = useFridge();
+    const {
+        foods, 
+        loading,
+        handleAdd, 
+        handleDelete
+    } = useFridge();
 
     if (!user) return null;
 
@@ -18,7 +23,10 @@ export default function Page() {
         <div>
             <PageHeader title={"My Fridge"}/>
 
-            <InputField label={"Add to fridge..."} onAdd={handleAdd}></InputField>
+            <AutocompleteInputField
+                label="Add to fridge..."
+                onAdd={(name, amount) => handleAdd(name, amount)}
+            />
 
             <FoodTable
                 items={foods}

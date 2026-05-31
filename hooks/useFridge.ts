@@ -34,16 +34,18 @@ export const useFridge = () => {
         return () => unsubscribe();
     }, [user]);
 
-    const handleAdd = async (itemName: string, amount: number) => {
-        if (!itemName.trim() || !user) return;
 
+
+    const handleAdd = async (name: string, amount: number) => {
+        if (!name.trim() || !user) return;
+        const normalized = name.charAt(0).toUpperCase() + name.slice(1);
         try {
             await addDoc(collection(db, "fridge"), {
-                name: itemName,
+                name: normalized,
                 amount: amount,
                 unit: "ks",
                 createdAt: new Date(),
-                userId: user?.uid
+                userId: user.uid
             });
         } catch (e) {
             console.error("Error adding ", e);
