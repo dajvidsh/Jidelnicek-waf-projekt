@@ -6,9 +6,10 @@ import Link from "next/link";
 import PageHeader from "@/app/components/Pageheader";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/app/context/AuthContext";
-import { useRecipesFromFridge } from "@/hooks/useRecipesFromFridge";
+import { useRecipesFromFridge, RecipeFilters as FilterState } from "@/hooks/useRecipesFromFridge";
 import { useMyRecipes } from "@/hooks/useMyRecipes";
 import { RecipeCard } from "@/app/components/RecipeCard";
+import RecipeFilters from "@/app/components/RecipeFilters";
 
 interface Recipe {
     id: number;
@@ -22,12 +23,33 @@ export default function Page() {
     const { user } = useAuth();
 
     const [isSearching, setIsSearching] = useState(false);
+    const [filters, setFilters] = useState<FilterState>({});
+    const [isMounted, setIsMounted] = useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+        const savedSearch = sessionStorage.getItem("recipesIsSearching");
+        if (savedSearch === "true") {
+            setIsSearching(true);
+        }
+        const savedFilters = sessionStorage.getItem("recipesFilters");
+        if (savedFilters) {
+            try {
+                setFilters(JSON.parse(savedFilters));
+            } catch (e) {}
+        }
+    }, []);
+
+    React.useEffect(() => {
+        if (!isMounted) return;
+        sessionStorage.setItem("recipesIsSearching", isSearching.toString());
+        sessionStorage.setItem("recipesFilters", JSON.stringify(filters));
+    }, [isSearching, filters, isMounted]);
 
     const { savedRecipes, loadingCookbook } = useMyRecipes(user?.uid);
+    const { recipes, loading, error } = useRecipesFromFridge(filters);
 
-    const { recipes, loading, error } = useRecipesFromFridge();
-
-    if (!user) return null;
+    if (!user || !isMounted) return null;
 
     return (
         <div>
@@ -65,7 +87,7 @@ export default function Page() {
                 {/* prepinani */}
                 <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
                     <h2 className="text-2xl font-bold text-slate-800">
-                        {isSearching ? "Recipes from fridge" : "My Cookbook"}
+                        {isSearching ? "Find Recipes" : "Cookbook"}
                     </h2>
 
                     {isSearching ? (
@@ -80,15 +102,19 @@ export default function Page() {
                 </div>
 
                 {isSearching ? (
-                    /* -----fridge recipe ----- */
-                    loading ? (
+                    <>
+                        {/* Filters component */}
+                        <RecipeFilters filters={filters} setFilters={setFilters} />
+
+                        {/* -----fridge recipe ----- */}
+                        {loading ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-                            <p className="text-slate-500 font-medium">Hledám recepty podle vaší lednice...</p>
+                            <p className="text-slate-500 font-medium">Searching for recipes from your fridge...</p>
                         </div>
                     ) : error ? (
                         <div className="text-center py-12 bg-red-50/50 rounded-3xl border border-dashed border-red-200 max-w-xl mx-auto">
-                            <p className="text-red-500 font-semibold mb-1">Nepodařilo se načíst recepty</p>
+                            <p className="text-red-500 font-semibold mb-1">Failed to load recipes</p>
                             <p className="text-sm text-red-400">{error}</p>
                         </div>
                     ) : (
@@ -103,18 +129,19 @@ export default function Page() {
                                 />
                             ))}
                         </div>
-                    )
+                    )}
+                    </>
                 ) : (
                     /* ----- my recipe ----- */
                     loadingCookbook ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-                            <p className="text-slate-500 font-medium">Načítám vaši kuchařku...</p>
+                            <p className="text-slate-500 font-medium">Loading your cookbook...</p>
                         </div>
                     ) : savedRecipes.length === 0 ? (
                         <div className="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-200 max-w-2xl mx-auto">
-                            <p className="text-slate-500 font-medium mb-2">Vaše kuchařka je zatím prázdná</p>
-                            <p className="text-sm text-slate-400">Najděte si nějaký recept podle lednice a uložte si ho sem!</p>
+                            <p className="text-slate-500 font-medium mb-2">Your cookbook is currently empty</p>
+                            <p className="text-sm text-slate-400">Find a recipe from your fridge and save it here!</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
