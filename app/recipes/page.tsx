@@ -10,6 +10,7 @@ import { useRecipesFromFridge, RecipeFilters as FilterState } from "@/hooks/useR
 import { useMyRecipes } from "@/hooks/useMyRecipes";
 import { RecipeCard } from "@/app/components/RecipeCard";
 import RecipeFilters from "@/app/components/RecipeFilters";
+import RecipeSearchBar from "@/app/components/RecipeSearchBar";
 
 interface Recipe {
     id: number;
@@ -54,8 +55,9 @@ export default function Page() {
     return (
         <div>
             <PageHeader title={"Recipes"} />
+            <RecipeSearchBar />
             <div className="max-w-7xl mx-auto px-4 pb-12">
-                <div className="flex justify-center gap-4 mb-10 w-full max-w-4xl mx-auto mt-4">
+                <div className="flex justify-center gap-4 mb-10 w-full max-w-4xl mx-auto mt-8">
                     <Link href="/fridge" className="flex-1">
                         <Button
                             variant="default"

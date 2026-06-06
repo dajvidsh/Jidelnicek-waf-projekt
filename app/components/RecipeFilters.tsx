@@ -76,9 +76,7 @@ export default function RecipeFilters({ filters, setFilters }: Props) {
     const types = ["Main Course", "Breakfast", "Dessert", "Snack"];
     const sortOptions = [
         { id: "min-missing-ingredients", label: "Min missing ingredients" },
-        { id: "max-used-ingredients", label: "Max used ingredients" },
-        { id: "popularity", label: "Most popular" },
-        { id: "time", label: "Fastest" }
+        { id: "max-used-ingredients", label: "Max used ingredients" }
     ];
 
     const handleDietChange = (d: string) => {

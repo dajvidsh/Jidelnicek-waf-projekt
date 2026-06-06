@@ -11,6 +11,7 @@ import { fetcher } from "@/lib/fetcher";
 import { db } from "@/lib/firebase";
 import { doc, onSnapshot, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { Heart, Trash2 } from "lucide-react";
+import { RecipeCard } from "@/app/components/RecipeCard";
 
 interface RecipeDetailInfo {
     id: number;
@@ -21,6 +22,13 @@ interface RecipeDetailInfo {
         id: number;
         original: string;
     }[];
+}
+
+interface SimilarRecipe {
+    id: number;
+    title: string;
+    imageType: string;
+    readyInMinutes: number;
 }
 
 export default function Page() {
@@ -36,8 +44,24 @@ export default function Page() {
         revalidateOnFocus: false
     });
 
+    const similarUrl = id ? `https://api.spoonacular.com/recipes/${id}/similar?number=5&apiKey=${apiKey}` : null;
+    const { data: similarRecipes } = useSWR<SimilarRecipe[]>(similarUrl, fetcher, {
+        revalidateOnFocus: false
+    });
+
     const [isSaved, setIsSaved] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [checkedIngredients, setCheckedIngredients] = useState<Set<number>>(new Set());
+
+    const toggleIngredient = (index: number) => {
+        const newSet = new Set(checkedIngredients);
+        if (newSet.has(index)) {
+            newSet.delete(index);
+        } else {
+            newSet.add(index);
+        }
+        setCheckedIngredients(newSet);
+    };
 
     useEffect(() => {
         if (!user || !id) return;
@@ -131,14 +155,21 @@ export default function Page() {
                 </div>
 
                 <div className="mb-10 flex flex-col gap-4">
-                    {recipeDetail.extendedIngredients?.map((ingredient, index) => (
-                        <div key={`${ingredient.id}-${index}`}>
-                            <label className="flex items-center space-x-3 text-primary font-bold text-sm md:text-base cursor-pointer">
-                                <Checkbox className="border-primary text-primary w-5 h-5"/>
-                                <span>{ingredient.original}</span>
-                            </label>
-                        </div>
-                    ))}
+                    {recipeDetail.extendedIngredients?.map((ingredient, index) => {
+                        const isChecked = checkedIngredients.has(index);
+                        return (
+                            <div key={`${ingredient.id}-${index}`}>
+                                <label className={`flex items-center space-x-3 font-bold text-sm md:text-base cursor-pointer transition-colors ${isChecked ? 'text-slate-400' : 'text-primary'}`}>
+                                    <Checkbox 
+                                        className="border-primary text-primary w-5 h-5"
+                                        checked={isChecked}
+                                        onCheckedChange={() => toggleIngredient(index)}
+                                    />
+                                    <span className={isChecked ? 'line-through' : ''}>{ingredient.original}</span>
+                                </label>
+                            </div>
+                        );
+                    })}
                 </div>
 
                 <div>
@@ -146,6 +177,25 @@ export default function Page() {
                     <div className="text-slate-700 text-sm md:text-base leading-relaxed space-y-4">
                         {recipeDetail.instructions}
                     </div>
+                </div>
+
+                <div className="mt-12 mb-8">
+                    <h3 className="text-primary font-bold text-xl mb-4 border-t pt-8">Similar Recipes</h3>
+                    {similarRecipes ? (
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            {similarRecipes.map((sim) => (
+                                <RecipeCard
+                                    key={`similar-${sim.id}`}
+                                    id={sim.id}
+                                    title={sim.title}
+                                    image={`https://img.spoonacular.com/recipes/${sim.id}-312x231.${sim.imageType || 'jpg'}`}
+                                    readyInMinutes={sim.readyInMinutes}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-slate-500 text-sm">Loading similar recipes...</p>
+                    )}
                 </div>
 
             </div>

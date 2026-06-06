@@ -17,12 +17,9 @@ export const useRecipesFromFridge = (filters?: RecipeFilters) => {
     const ingredientsString = foods.map(item => item.name).sort().join(",");
 
     const sortParam = filters?.sort || 'min-missing-ingredients';
-    let sortDirection = '';
-    if (sortParam === 'time') sortDirection = 'asc';
-    if (sortParam === 'popularity') sortDirection = 'desc';
 
     let url = ingredientsString
-        ? `https://api.spoonacular.com/recipes/complexSearch?includeIngredients=${encodeURIComponent(ingredientsString)}&number=12&addRecipeInformation=true&fillIngredients=true&sort=${sortParam}${sortDirection ? `&sortDirection=${sortDirection}` : ''}&apiKey=${apiKey}`
+        ? `https://api.spoonacular.com/recipes/complexSearch?includeIngredients=${encodeURIComponent(ingredientsString)}&number=12&addRecipeInformation=true&fillIngredients=true&sort=${sortParam}&apiKey=${apiKey}`
         : null;
 
     if (url && filters) {
