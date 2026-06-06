@@ -12,7 +12,7 @@ const NAV_ITEMS = [
     { href: "/recipes", label: "Recipes" },
     { href: "/shoppingList", label: "Shopping list" },
     { href: "/profile", label: "Profile" },
-    { href: "/chat", label: "Chat" },
+    { href: "/chat", label: "AI Chef" },
 ];
 
 const LINK_CLASSES = "block px-6 py-3 text-gray-500 hover:text-black transition-colors tracking-wide";

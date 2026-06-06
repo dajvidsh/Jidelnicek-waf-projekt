@@ -22,6 +22,13 @@ interface RecipeDetailInfo {
         id: number;
         original: string;
     }[];
+    analyzedInstructions: {
+        name: string;
+        steps: {
+            number: number;
+            step: string;
+        }[];
+    }[];
 }
 
 interface SimilarRecipe {
@@ -173,10 +180,35 @@ export default function Page() {
                 </div>
 
                 <div>
-                    <h3 className="text-primary font-bold text-lg mb-3">Instructions</h3>
-                    <div className="text-slate-700 text-sm md:text-base leading-relaxed space-y-4">
-                        {recipeDetail.instructions}
-                    </div>
+                    <h3 className="text-primary font-bold text-lg mb-4">Instructions</h3>
+
+                    {recipeDetail.analyzedInstructions?.[0]?.steps?.length ? (
+                        <ol className="space-y-4">
+                            {recipeDetail.analyzedInstructions[0].steps.map((step) => (
+                                <li key={step.number} className="flex gap-4">
+                    <span className="shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex items-center justify-center">
+                        {step.number}
+                    </span>
+                                    <p className="text-slate-700 text-sm md:text-base leading-relaxed pt-1">
+                                        {step.step}
+                                    </p>
+                                </li>
+                            ))}
+                        </ol>
+                    ) : recipeDetail.instructions ? (
+                        // Fallback - některé recepty nemají analyzedInstructions, takže parsujeme HTML
+                        <div
+                            className="text-slate-700 text-sm md:text-base leading-relaxed
+                       [&_ol]:list-decimal [&_ol]:list-outside [&_ol]:ml-5 [&_ol]:space-y-2
+                       [&_ul]:list-disc [&_ul]:list-outside [&_ul]:ml-5 [&_ul]:space-y-2
+                       [&_li]:pl-1
+                       [&_p]:my-3
+                       [&_strong]:font-bold [&_strong]:text-slate-900"
+                            dangerouslySetInnerHTML={{ __html: recipeDetail.instructions }}
+                        />
+                    ) : (
+                        <p className="text-slate-400 italic text-sm">No instructions available for this recipe.</p>
+                    )}
                 </div>
 
                 <div className="mt-12 mb-8">
