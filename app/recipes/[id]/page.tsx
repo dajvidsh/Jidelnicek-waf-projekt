@@ -30,7 +30,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     });
 
     if (!res.ok) {
-        return <div className="p-10 text-center">Recept nenalezen.</div>;
+        return <div className="p-10 text-center">Recipe not found.</div>;
     }
 
     const recipeDetail: RecipeDetailInfo = await res.json();

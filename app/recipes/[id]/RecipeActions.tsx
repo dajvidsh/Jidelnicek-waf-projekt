@@ -37,7 +37,7 @@ export default function RecipeActions({ id }: { id: string }) {
 
     const handleRemove = async () => {
         if (!user) return;
-        if (!window.confirm("Opravdu chcete tento recept smazat z kuchařky?")) return;
+        if (!window.confirm("Are you sure you want to delete this recipe?")) return;
         const docRef = doc(db, "users", user.uid, "savedRecipes", id);
         await deleteDoc(docRef);
         router.push("/recipes");
@@ -50,7 +50,7 @@ export default function RecipeActions({ id }: { id: string }) {
             <button
                 onClick={handleToggleFavorite}
                 className="p-3 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-full transition-colors border border-slate-100"
-                title={isFavorite ? "Odebrat z oblíbených" : "Přidat do oblíbených"}
+                title={isFavorite ? "Remove from favourites" : "Add to favourites"}
             >
                 <Heart className={`w-6 h-6 ${isFavorite ? "fill-red-500 text-red-500" : ""}`} />
             </button>
@@ -58,7 +58,7 @@ export default function RecipeActions({ id }: { id: string }) {
             <button
                 onClick={handleRemove}
                 className="p-3 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-full transition-colors border border-slate-100"
-                title="Smazat recept"
+                title="Delete recipe"
             >
                 <Trash2 className="w-6 h-6" />
             </button>
