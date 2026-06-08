@@ -47,7 +47,7 @@ function Topbar() {
                         <span className="font-bold text-2xl"><Link href={'/home'}>Jidelnicek</Link></span>
                     </div>
 
-                    <div className="flex items-center sm:hidden">
+                    <div className="flex items-center">
                         <button
                             className="p-2 text-gray-400 focus:outline-none"
                             onClick={() => setMenuOpen(!menuOpen)}
@@ -58,7 +58,7 @@ function Topbar() {
                 </div>
             </div>
 
-            <div className={`fixed top-16 left-0 h-[calc(100vh-64px)] w-[70%] bg-white border-r border-gray-100 z-40 transform transition-transform duration-300 ease-in-out sm:hidden ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className={`fixed top-16 left-0 h-[calc(100vh-64px)] w-[70%] bg-white border-r border-gray-100 z-40 transform transition-transform duration-300 ease-in-out ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <ul className="py-4">
                     {NAV_ITEMS.map((item) => (
                         <li key={item.href}>
@@ -84,7 +84,7 @@ function Topbar() {
             </div>
 
             {menuOpen && (
-                <div className="fixed top-16 inset-0 z-30 sm:hidden" onClick={closeMenu} />
+                <div className="fixed top-16 inset-0 z-30" onClick={closeMenu} />
             )}
         </nav>
     );
