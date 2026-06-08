@@ -55,9 +55,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                 <div className="mb-10 flex flex-col gap-4">
                     {recipeDetail.extendedIngredients?.map((ingredient, index) => (
                         <div key={`${ingredient.id}-${index}`}>
-                            <label className="flex items-center space-x-3 text-primary font-bold text-sm md:text-base cursor-pointer">
-                                <Checkbox className="border-primary text-primary w-5 h-5"/>
-                                <span>{ingredient.original}</span>
+                            <label htmlFor={`ingredient-${ingredient.id}-${index}`} className="flex items-center space-x-3 text-primary font-bold text-sm md:text-base cursor-pointer">
+                                <Checkbox id={`ingredient-${ingredient.id}-${index}`} className="peer border-primary text-primary w-5 h-5"/>
+                                <span className="peer-data-[state=checked]:line-through peer-data-[state=checked]:opacity-50 transition-all">{ingredient.original}</span>
                             </label>
                         </div>
                     ))}
