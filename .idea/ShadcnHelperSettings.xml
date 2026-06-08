@@ -2490,6 +2490,18 @@
         <option name="homepage" value="https://gamekitui.com" />
         <option name="urlTemplate" value="https://gamekitui.com/r/{name}.json" />
       </RegistryConfigState>
+      <RegistryConfigState>
+        <option name="id" value="central-soralabs" />
+        <option name="name" value="Soralabs" />
+        <option name="namespace" value="@soralabs" />
+        <option name="baseUrl" value="https://ui.soralabs.io.vn/r" />
+        <option name="stylePath" value="/{name}.json" />
+        <option name="type" value="community" />
+        <option name="enabled" value="false" />
+        <option name="description" value="Motion-first React primitives and animated UI components for shadcn/ui. Copy, customize, and ship fluid interfaces." />
+        <option name="homepage" value="https://ui.soralabs.io.vn" />
+        <option name="urlTemplate" value="https://ui.soralabs.io.vn/r/{name}.json" />
+      </RegistryConfigState>
     </registryConfigs>
   </component>
 </project>
