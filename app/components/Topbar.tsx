@@ -47,18 +47,30 @@ function Topbar() {
                         <span className="font-bold text-2xl"><Link href={'/home'}>Jidelnicek</Link></span>
                     </div>
 
-                    <div className="flex items-center sm:hidden">
-                        <button
-                            className="p-2 text-gray-400 focus:outline-none"
-                            onClick={() => setMenuOpen(!menuOpen)}
-                        >
+                    {/* desktop menu */}
+                    <div className="hidden md:flex items-center space-x-1">
+                        {NAV_ITEMS.map((item) => (
+                            <Link key={item.href} href={item.href} className={LINK_CLASSES}>
+                                {item.label}
+                            </Link>
+                        ))}
+                        <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 text-gray-500 hover:text-red-600 transition-colors">
+                            <LogOut className="h-4 w-4" />
+                            <span className="text-sm font-medium">Log out</span>
+                        </button>
+                    </div>
+
+                    {/* hamburger button */}
+                    <div className="md:hidden flex items-center">
+                        <button className="p-2 text-gray-400" onClick={() => setMenuOpen(!menuOpen)}>
                             {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div className={`fixed top-16 left-0 h-[calc(100vh-64px)] w-[70%] bg-white border-r border-gray-100 z-40 transform transition-transform duration-300 ease-in-out sm:hidden ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            {/* mobile menu */}
+            <div className={`fixed top-16 left-0 h-[calc(100vh-64px)] w-[70%] bg-white border-r border-gray-100 z-40 transform transition-transform duration-300 ease-in-out ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <ul className="py-4">
                     {NAV_ITEMS.map((item) => (
                         <li key={item.href}>
@@ -84,7 +96,7 @@ function Topbar() {
             </div>
 
             {menuOpen && (
-                <div className="fixed top-16 inset-0 z-30 sm:hidden" onClick={closeMenu} />
+                <div className="fixed top-16 inset-0 z-30" onClick={closeMenu} />
             )}
         </nav>
     );

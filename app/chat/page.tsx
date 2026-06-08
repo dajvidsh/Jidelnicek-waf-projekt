@@ -33,19 +33,17 @@ export default function ChatPage() {
 
     if (!user) return null;
 
-    // Funkce, která se spustí po odeslání formuláře
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // Zabrání znovunačtení stránky
         if (!input.trim()) return;
 
-        // 1. Přidáme uživatelskou zprávu do chatu
+        // přidáme uživat zprávu do chatu
         const newMessages = [...messages, { role: 'user', content: input } as Message];
         setMessages(newMessages);
-        setInput(''); // Vymažeme textové pole
+        setInput('');
         setIsLoading(true);
 
         try {
-            // 2. Pošleme dotaz na naše API (route.ts)
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -55,7 +53,7 @@ export default function ChatPage() {
             const data = await response.json();
 
             if (response.ok) {
-                // 3. Přidáme odpověď AI do chatu
+                // Přidáme odpověď AI do chatu
                 setMessages([...newMessages, { role: 'ai', content: data.reply }]);
             } else {
                 alert(data.error);
@@ -134,13 +132,12 @@ export default function ChatPage() {
                         </div>
                     )}
 
-                    {/* Zprávy */}
+                    {/*Zprávy*/}
                     {messages.map((msg, index) => (
                         <div
                             key={index}
                             className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                         >
-                            {/* Avatar */}
                             <div className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${
                                 msg.role === 'user'
                                     ? 'bg-primary text-white'
@@ -149,7 +146,7 @@ export default function ChatPage() {
                                 {msg.role === 'user' ? <User className="w-4 h-4" /> : <ChefHat className="w-4 h-4" />}
                             </div>
 
-                            {/* Bublina */}
+                            {/*bublina*/}
                             <div className={`max-w-[85%] px-4 py-3 rounded-2xl ${
                                 msg.role === 'user'
                                     ? 'bg-primary text-white rounded-tr-sm'
@@ -180,7 +177,7 @@ export default function ChatPage() {
                         </div>
                     ))}
 
-                    {/* Loading indikátor */}
+                    {/* loading */}
                     {isLoading && (
                         <div className="flex gap-3">
                             <div className="shrink-0 w-9 h-9 rounded-full bg-white border border-slate-200 text-primary flex items-center justify-center">
