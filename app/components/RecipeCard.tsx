@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import {Clock, Star, ArrowRight, Check, Download} from "lucide-react";
