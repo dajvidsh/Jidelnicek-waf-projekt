@@ -86,7 +86,6 @@ export default function Page() {
                     </Link>
                 </div>
 
-                {/* prepinani */}
                 <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
                     <h2 className="text-2xl font-bold text-slate-800">
                         {isSearching ? "Find Recipes" : "Cookbook"}
@@ -105,10 +104,8 @@ export default function Page() {
 
                 {isSearching ? (
                     <>
-                        {/* Filters component */}
                         <RecipeFilters filters={filters} setFilters={setFilters} />
 
-                        {/* -----fridge recipe ----- */}
                         {loading ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
@@ -134,7 +131,6 @@ export default function Page() {
                     )}
                     </>
                 ) : (
-                    /* ----- my recipe ----- */
                     loadingCookbook ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>

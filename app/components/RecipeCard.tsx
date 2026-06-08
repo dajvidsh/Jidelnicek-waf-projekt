@@ -30,7 +30,7 @@ export function RecipeCard({ id, title, image, readyInMinutes, rating, category 
                         {isDownloaded ? (
                             <button
                                 disabled
-                                onClick={(e) => e.preventDefault()} // Pro jistotu blokujeme prokliknutí
+                                onClick={(e) => e.preventDefault()}
                                 className="p-2 bg-green-50/90 text-green-600 backdrop-blur-md rounded-full shadow-sm cursor-default"
                             >
                                 <Check className="w-5 h-5" />
